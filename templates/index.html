@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сайт для выездной работы мастера</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <header>
+        <h1>Ремонт техники на дому</h1>
+    </header>
+
+    <div class="container">
+        <p class="description">
+            Наши мастера — профессионалы с многолетним опытом, которые быстро и качественно решат любые проблемы с вашей техникой прямо у вас дома. Мы занимаемся ремонтом <strong>ПК</strong>, <strong>телефонов</strong>, <strong>ноутбуков</strong> и <strong>телевизоров</strong>.
+        </p>
+        <p class="description">
+            <strong>Быстрый выезд</strong>, диагностика и выполнение всех работ на месте — мы гарантируем качество и оперативность.
+        </p>
+        <button class="phone-button" onclick="contactUs()">Позвонить</button>
+        <p class="description">
+            Мы также предлагаем <strong>полную диагностику</strong> вашего устройства, чтобы вы могли быть уверены в его работоспособности после ремонта.
+        </p>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Мастер по ремонту. Все права защищены.</p>
+    </footer>
+
+    <!-- Модальное окно -->
+    <div id="modal">
+        <div id="modal-content">
+            <button id="close-btn" onclick="closeModal()">×</button>
+            <p>Наш номер телефона: 8 (915) 522-20-06</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- Вставляем контент из шаблона в модальное окно -->
+
+</body>
+</html>
