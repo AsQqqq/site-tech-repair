@@ -15,6 +15,8 @@ UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+app.secret_key = 'VOvWd8xuPf'
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Пароль для входа
