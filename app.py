@@ -106,6 +106,7 @@ def upload():
     if request.method == 'POST':
         # Получение данных из формы
         name = request.form['name']
+        name_customer = request.form['name_customer']
         address = request.form['address']
         services = request.form.getlist('services[]')  # Список услуг
         prices = request.form.getlist('prices[]')  # Список цен
@@ -153,6 +154,7 @@ def upload():
         doc.add_heading('Документ о выполненных работах', 0)
 
         doc.add_paragraph(f'Исполнитель: {name}')
+        doc.add_paragraph(f'Заказчик: {name_customer}')
         doc.add_paragraph(f'Адрес выполнения работ: {address}')
         doc.add_paragraph(f'Рекомендации: {recommendations}')
         doc.add_paragraph(f'Номер заявки: {order_number}')
@@ -224,6 +226,8 @@ def view_order(order_number):
 
         if text.startswith('Исполнитель:'):
             order_data['name'] = text.replace('Исполнитель:', '').strip()
+        elif text.startswith('Заказчик:'):
+            order_data['name_customer'] = text.replace('Заказчик:', '').strip()
         elif text.startswith('Адрес выполнения работ:'):
             order_data['address'] = text.replace('Адрес выполнения работ:', '').strip()
         elif text.startswith('Рекомендации:'):
