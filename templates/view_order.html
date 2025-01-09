@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/view_order.css') }}"> <!-- Подключаем стили -->
+    <script src="{{ url_for('static', filename='js/photo_open.js') }}"></script> <!-- Подключаем JS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <title>Заказ #{{ order_data['order_number'] }}</title>
+</head>
+<body>
+    <h1>Информация о заказе</h1>
+    <p><strong>Исполнитель:</strong> {{ order_data['name'] }}</p>
+    <p><strong>Адрес выполнения работ:</strong> {{ order_data['address'] }}</p>
+    <p><strong>Рекомендации:</strong> {{ order_data['recommendations'] }}</p>
+    <p><strong>Номер заявки:</strong> {{ order_data['order_number'] }}</p>
+    <p><strong>Дата выполнения работ:</strong> {{ order_data['order_date'] }}</p>
+
+    <h2>Услуги</h2>
+    <ul>
+        {% for service in order_data['services'] %}
+            <li>
+                <strong>Услуга:</strong> {{ service['name'] }}<br>
+                <strong>Цена:</strong> {{ service['price'] }}<br>
+                <strong>Количество:</strong> {{ service['quantity'] }}<br>
+                <strong>Сумма:</strong> {{ service['sum'] }}<br>
+                <strong>Гарантия:</strong> {{ service['warranty'] }}<br>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <p><strong>Стоимость услуг:</strong> {{ order_data['total_cost'] }}</p>
+    <p><strong>Скидка:</strong> {{ order_data['discount'] }}</p>
+    <p><strong>К оплате:</strong> {{ order_data['discounted_cost'] }}</p>
+
+    <h3>Прикрепленные файлы</h3>
+    <p><strong>Чек:</strong> <button onclick="openImage('/uploads/{{ order_data["order_number"] }}/{{ order_data["receipt_filename"] }}')">Открыть изображение</button></p>
+    <br>
+    <p><strong>Документ (сторона 1):</strong> <button onclick="openImage('/uploads/{{ order_data["order_number"] }}/{{ order_data["document_filename1"] }}')">Открыть изображение</button></p>
+    <br>
+    <p><strong>Документ (сторона 2):</strong> <button onclick="openImage('/uploads/{{ order_data["order_number"] }}/{{ order_data["document_filename2"] }}')">Открыть изображение</button></p>
+
+    <br>
+    <button onclick="window.location.href='/main'">Назад на главную</button>
+
+    <!-- Модальное окно для отображения изображений -->
+    <div id="modal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+</body>
+</html>

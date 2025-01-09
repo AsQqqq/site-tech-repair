@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <title>Главная страница</title>
+</head>
+<body>
+    <h1>Главная страница</h1>
+
+    <button onclick="window.location.href='/upload'">Загрузить заявку</button>
+
+    <h2>Поиск заявок</h2>
+    <form method="GET" action="{{ url_for('main') }}">
+        <input type="text" name="search" placeholder="Введите запрос" value="{{ request.args.get('search', '') }}">
+        <button type="submit">Поиск</button>
+    </form>
+
+    <h2>Список заявок</h2>
+    <ul>
+        {% for order in orders %}
+            <li><a href="{{ url_for('view_order', order_number=order) }}">{{ order }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
