@@ -282,6 +282,6 @@ def logout():
 
 if __name__ == '__main__':
     try:
-        app.run(debug=True)
-    except:
         app.run(host='0.0.0.0', port=443, ssl_context=('/etc/letsencrypt/live/repair-31.ru/fullchain.pem', '/etc/letsencrypt/live/repair-31.ru/privkey.pem'))
+    except:
+        app.run(debug=True)
