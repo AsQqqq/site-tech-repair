@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{{ url_for('static', filename='js/photo_open.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/view_order.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <title>Информация о расходе</title>
+</head>
+<body>
+    <h1>Информация о расходе</h1>
+    <p><strong>Сумма:</strong> {{ expense_data['amount'] }}</p>
+    <p><strong>ФИО:</strong> {{ expense_data['name'] }}</p>
+    <p><strong>Дата транзакции:</strong> {{ expense_data['transaction_date'] }}</p>
+    <p><strong>Описание:</strong> {{ expense_data['description'] }}</p>
+
+    <h3>Прикрепленные файлы</h3>
+    <p><strong>Чек:</strong> <button onclick="openImage('/expenses/{{ expense_data["uuid"] }}/{{ filename }}')">Открыть изображение</button></p>
+    <br>
+
+    <br>
+    <button onclick="window.location.href='/main'">Назад на главную</button>
+
+    <!-- Модальное окно для отображения изображений -->
+    <div id="modal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+</body>
+</html>

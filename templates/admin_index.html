@@ -10,6 +10,20 @@
     <h1>Главная страница</h1>
 
     <button onclick="window.location.href='/upload'">Загрузить заявку</button>
+    <button onclick="window.location.href='/add_expense'">Добавь трату</button>
+
+    <h2>Финансовая информация</h2>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <div>
+            <strong>Всего доходов:</strong> {{ total_income }} ₽
+        </div>
+        <div>
+            <strong>Всего расходов:</strong> {{ total_expenses }} ₽
+        </div>
+        <div>
+            <strong>Итоговый баланс:</strong> {{ total_balance }} ₽
+        </div>
+    </div>
 
     <h2>Поиск заявок</h2>
     <form method="GET" action="{{ url_for('main') }}">
@@ -17,11 +31,29 @@
         <button type="submit">Поиск</button>
     </form>
 
-    <h2>Список заявок</h2>
-    <ul>
-        {% for order in orders %}
-            <li><a href="{{ url_for('view_order', order_number=order) }}">{{ order }}</a></li>
-        {% endfor %}
-    </ul>
+    <h2>Список заявок и трат</h2>
+    
+    <div style="display: flex; justify-content: space-between;">
+        <!-- Первая колонка: Список заявок -->
+        <div style="width: 45%;">
+            <h3>Список заявок</h3>
+            <ul>
+                {% for order in orders %}
+                    <li><a href="{{ url_for('view_order', order_number=order) }}">{{ order }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Вторая колонка: Список трат -->
+        <div style="width: 45%;">
+            <h3>Список трат</h3>
+            <ul>
+                {% for expense in expenses %}
+                    <li><a href="{{ url_for('view_expense', expense_id=expense) }}">{{ expense }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
 </body>
 </html>

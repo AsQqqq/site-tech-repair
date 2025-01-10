@@ -1,7 +1,7 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, g
 from docx import Document
+import sqlite3, uuid
 from datetime import datetime
 
 app = Flask(__name__)
@@ -12,12 +12,45 @@ app.secret_key = os.urandom(24)
 # Папка для загрузки файлов
 UPLOAD_FOLDER = 'uploads'
 
+# Папка для загрузки файлов
+EXPENSES_FOLDER = 'expenses'
+
+
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+
+if not os.path.exists(EXPENSES_FOLDER):
+    os.makedirs(EXPENSES_FOLDER)
+
+
+# Подключение к базе данных
+def get_db():
+    if 'db' not in g:
+        g.db = sqlite3.connect('database.db')
+        g.db.row_factory = sqlite3.Row  # Для удобства работы с результатами запроса (словари)
+    return g.db
+
+# Закрытие подключения к базе данных
+@app.teardown_appcontext
+def close_db(error):
+    db = getattr(g, 'db', None)
+    if db is not None:
+        db.close()
+
+
+def init_db():
+    with app.app_context():
+        db = get_db()
+        with app.open_resource('sqlite/transactions.sql', mode='r') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
 
 app.secret_key = 'VOvWd8xuPf'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['EXPENSES_FOLDER'] = EXPENSES_FOLDER
+
 
 # Пароль для входа
 ADMIN_PASSWORD = 'h5wwLy'  # Лучше хранить в переменных окружения
@@ -29,15 +62,18 @@ def create_directory_for_order(order_number):
         os.makedirs(order_dir)
     return order_dir
 
+
 # Проверка аутентификации
 def is_authenticated():
     return 'authenticated' in session and session['authenticated']
+
 
 # Главная страница
 @app.route('/')
 def index():
     orders = os.listdir(UPLOAD_FOLDER)
     return render_template('index.html', orders=orders)
+
 
 # Страница входа (admin)
 @app.route('/admin', methods=['GET', 'POST'])
@@ -56,26 +92,122 @@ def admin():
     return render_template('admin_login.html')
 
 
+
+# Функция для создания папки с уникальным ID траты
+def create_directory_for_expense(expense_id):
+    expense_dir = os.path.join(EXPENSES_FOLDER, expense_id)
+    if not os.path.exists(expense_dir):
+        os.makedirs(expense_dir)
+    return expense_dir
+
+
+
+
+@app.route('/expenses/<expense_id>/<filename>')
+def serve_expense_file(expense_id, filename):
+    # Указываем путь к файлам в папке 'expenses'
+    file_path = os.path.join('expenses', expense_id, filename)
+    
+    # Проверяем, существует ли файл
+    if not os.path.exists(file_path):
+        return "Файл не найден", 404
+    
+    # Возвращаем файл
+    return send_from_directory(os.path.dirname(file_path), os.path.basename(file_path))
+
+
+@app.route('/expense/<expense_id>', methods=['GET'])
+def view_expense(expense_id):
+    if not is_authenticated():
+        return redirect(url_for('admin'))  # Если не авторизован, перенаправление на страницу логина
+    
+    # Путь к папке с заказом в директории 'expenses'
+    order_dir = os.path.join('expenses', expense_id)  # Папка с заказом внутри expenses
+    if not os.path.exists(order_dir):
+        return "Трата не найден", 404
+
+    # Путь к DOCX документу
+    doc_filename = f'{expense_id}_expense_document.docx'
+    doc_path = os.path.join(order_dir, doc_filename)
+    
+    if not os.path.exists(doc_path):
+        return "Документ не найден", 404
+
+    # Открытие и чтение документа
+    doc = Document(doc_path)
+
+    order_data = {}
+    order_data['services'] = []
+
+    for para in doc.paragraphs:
+        text = para.text.strip()  # Убираем лишние пробелы
+
+        order_data['uuid'] = expense_id
+        if text.startswith('ФИО:'):
+            order_data['name'] = text.replace('ФИО:', '').strip()
+        elif text.startswith('Описание:'):
+            order_data['description'] = text.replace('Описание:', '').strip()
+        elif text.startswith('Сумма:'):
+            order_data['total_cost'] = text.replace('Сумма:', '').strip()
+        elif text.startswith('Чек:'):
+            order_data['receipt_filename'] = text.replace('Чек:', '').strip()
+        elif text.startswith('Дата:'):
+            order_data['date'] = text.replace('Дата:', '').strip()
+
+    # Формируем URL-адреса для файлов
+    receipt_url = url_for('static', filename=f'expenses/{expense_id}/{order_data["receipt_filename"]}')
+
+    print(order_data['uuid'])
+
+    # Формируем данные для передачи в шаблон
+    expense_data = {
+        'uuid': expense_id,
+        'name': order_data['name'],
+        'description': order_data['description'],
+        'amount': order_data['total_cost'],
+        'transaction_date': order_data['date']
+    }
+
+    return render_template('view_expense.html', expense_data=expense_data, filename=order_data["receipt_filename"])
+
+
 @app.route('/main', methods=['GET', 'POST'])
 def main():
-
     if not is_authenticated():
         return redirect(url_for('admin'))
     
-    search_query = request.args.get('search', '').lower()  # Получаем запрос из формы поиска
-    
+    # Получаем запрос из формы поиска
+    search_query = request.args.get('search', '').lower()
+
+    # Выполняем запросы для подсчета доходов и расходов
+    db = get_db()
+
+    # Подсчет всех доходов
+    total_income = db.execute('''
+        SELECT SUM(amount) FROM transactions WHERE transaction_type = 'income'
+    ''').fetchone()[0] or 0  # Если результата нет, то сумма 0
+
+    # Подсчет всех расходов
+    total_expenses = db.execute('''
+        SELECT SUM(amount) FROM transactions WHERE transaction_type = 'expense'
+    ''').fetchone()[0] or 0  # Если результата нет, то сумма 0
+
+    # Итог = доходы - расходы
+    total_balance = total_income - total_expenses
+
     # Получаем список всех заявок
     orders = os.listdir(UPLOAD_FOLDER)
-    
     filtered_orders = []
 
-    # Если есть запрос для поиска, фильтруем список заявок
+    # Получаем список всех трат
+    expenses = os.listdir(EXPENSES_FOLDER)
+    filtered_expenses = []
+
+    # Фильтруем заявки
     for order in orders:
         order_dir = os.path.join(app.config['UPLOAD_FOLDER'], order)
         
-        # Проверяем только если папка существует и содержит файлы
         if os.path.isdir(order_dir):
-            # Ищем в DOCX файле с информацией о заявке
             doc_file_path = None
             for file_ in os.listdir(order_dir):
                 if file_.endswith('.docx'):
@@ -86,16 +218,40 @@ def main():
                 doc = Document(doc_file_path)
                 text_content = ' '.join([para.text.lower() for para in doc.paragraphs])  # Собираем все тексты из документа в одну строку
                 
-                # Если в тексте документа встречается поисковый запрос, добавляем заявку в результаты
                 if search_query in text_content:
                     filtered_orders.append(order)
 
-    # Если не было найдено совпадений по запросу, показываем все заявки
+    # Фильтруем траты
+    for expense in expenses:
+        expense_dir = os.path.join(app.config['EXPENSES_FOLDER'], expense)
+        
+        if os.path.isdir(expense_dir):
+            doc_file_path = None
+            for file_ in os.listdir(expense_dir):
+                if file_.endswith('.docx'):
+                    doc_file_path = os.path.join(expense_dir, file_)
+                    break
+            
+            if doc_file_path:
+                doc = Document(doc_file_path)
+                text_content = ' '.join([para.text.lower() for para in doc.paragraphs])  # Собираем все тексты из документа в одну строку
+                
+                if search_query in text_content:
+                    filtered_expenses.append(expense)
+
+    # Если не было найдено совпадений по запросу, показываем все заявки и все траты
     if search_query:
         orders = filtered_orders
+        expenses = filtered_expenses
 
-    # Возвращаем шаблон с отфильтрованными заявками
-    return render_template('admin_index.html', orders=orders)
+    # Возвращаем шаблон с отфильтрованными заявками и тратами
+    return render_template('admin_index.html', 
+                           orders=orders, 
+                           expenses=expenses,
+                           total_income=total_income,
+                           total_expenses=total_expenses,
+                           total_balance=total_balance)
+
 
 
 
@@ -110,16 +266,16 @@ def upload():
         name = request.form['name']
         name_customer = request.form['name_customer']
         address = request.form['address']
-        services = request.form.getlist('services[]')  # Список услуг
-        prices = request.form.getlist('prices[]')  # Список цен
-        quantities = request.form.getlist('quantities[]')  # Список количеств
-        sums = request.form.getlist('sums[]')  # Список сумм
-        warranties = request.form.getlist('warranties[]')  # Список гарантий
-        discount = float(request.form['discount'])  # Скидка
-        total_cost = float(request.form['total_cost'])  # Стоимость услуг
-        discounted_cost = float(request.form['discounted_cost'])  # Сумма к оплате
+        services = request.form.getlist('services[]')
+        prices = request.form.getlist('prices[]')
+        quantities = request.form.getlist('quantities[]')
+        sums = request.form.getlist('sums[]')
+        warranties = request.form.getlist('warranties[]')
+        discount = float(request.form['discount'])
+        total_cost = float(request.form['total_cost'])
+        discounted_cost = float(request.form['discounted_cost'])
         recommendations = request.form['recommendations']
-        order_number = request.form['order_number']  # Номер заявки
+        order_number = request.form['order_number']
         order_date_str = request.form['order_date']  # Дата заявки
 
         # Преобразуем строку с датой в объект datetime
@@ -137,9 +293,9 @@ def upload():
         order_dir = create_directory_for_order(order_number)
 
         # Генерация новых имен файлов на английском языке
-        receipt_filename = 'receipt.jpg'  # Переименование в чек
-        document_filename1 = 'document1.jpg'  # Переименование в документ 1
-        document_filename2 = 'document2.jpg'  # Переименование в документ 2
+        receipt_filename = 'receipt.jpg'
+        document_filename1 = 'document1.jpg'
+        document_filename2 = 'document2.jpg'
 
         # Путь к сохранению файлов
         receipt_path = os.path.join(order_dir, receipt_filename)
@@ -154,7 +310,6 @@ def upload():
         # Генерация DOCX документа
         doc = Document()
         doc.add_heading('Документ о выполненных работах', 0)
-
         doc.add_paragraph(f'Исполнитель: {name}')
         doc.add_paragraph(f'Заказчик: {name_customer}')
         doc.add_paragraph(f'Адрес выполнения работ: {address}')
@@ -175,7 +330,7 @@ def upload():
         doc.add_paragraph(f'Скидка: {discount}')
         doc.add_paragraph(f'К оплате: {discounted_cost}')
 
-        # Вставляем ссылки на файлы (новые имена)
+        # Вставляем ссылки на файлы
         doc.add_paragraph(f'Чек: {receipt_filename}')
         doc.add_paragraph(f'Документ (сторона 1): {document_filename1}')
         doc.add_paragraph(f'Документ (сторона 2): {document_filename2}')
@@ -185,13 +340,18 @@ def upload():
         doc_path = os.path.join(order_dir, doc_filename)
         doc.save(doc_path)
 
-        # Перенаправляем на главную страницу
+        # Сохранение данных в базу данных
+        db = get_db()
+        # Добавление данных о доходах/расходах в отдельную таблицу
+        db.execute('''
+            INSERT INTO transactions (transaction_type, amount, receipt_filename, transaction_date, uuid)
+            VALUES (?, ?, ?, ?, ?)
+        ''', ("income", discounted_cost, receipt_filename, datetime.now().strftime('%Y-%m-%d'), order_number))
+        db.commit()
+
         return redirect(url_for('main'))
 
     return render_template('upload.html')
-
-
-
 
 
 # Добавляем маршрут для обработки статических файлов
@@ -269,7 +429,6 @@ def view_order(order_number):
     document_url1 = url_for('static', filename=f'uploads/{order_number}/{order_data["document_filename1"]}')
     document_url2 = url_for('static', filename=f'uploads/{order_number}/{order_data["document_filename2"]}')
 
-
     # Возвращаем информацию на страницу
     return render_template('view_order.html',
             order_data=order_data, 
@@ -280,6 +439,63 @@ def view_order(order_number):
 
 
 
+# Страница для добавления расходов
+@app.route('/add_expense', methods=['GET', 'POST'])
+def add_expense():
+    if not is_authenticated():
+        return redirect(url_for('admin'))  # Если не авторизован, перенаправление на страницу логина
+
+    if request.method == 'POST':
+        # Получение данных из формы
+        name = request.form['name']
+        description = request.form['description']
+        amount = float(request.form['amount'])
+
+        # Генерация уникального ID для траты
+        expense_id = str(uuid.uuid4())  # Генерация уникального ID для траты
+
+        # Получение файла чека
+        receipt_file = request.files['receipt']
+        
+        # Создание папки для траты
+        expense_dir = create_directory_for_expense(expense_id)
+
+        # Сохранение чека
+        receipt_filename = 'receipt.jpg'
+        receipt_path = os.path.join(expense_dir, receipt_filename)
+        receipt_file.save(receipt_path)
+
+        # Генерация документа (если необходимо) или сохранение данных
+        doc = Document()
+        doc.add_heading('Документ о расходах', 0)
+        doc.add_paragraph(f'ФИО: {name}')
+        doc.add_paragraph(f'Описание: {description}')
+        doc.add_paragraph(f'Сумма: {amount}')
+        doc.add_paragraph(f'Чек: {receipt_filename}')
+        current_datetime = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+        doc.add_paragraph(f'Дата: {current_datetime}')
+
+        # Генерация имени файла для документа
+        doc_filename = f'{expense_id}_expense_document.docx'
+        doc_path = os.path.join(expense_dir, doc_filename)
+        doc.save(doc_path)
+
+        # Сохранение данных в базу данных
+        db = get_db()
+        # Добавление данных о доходах/расходах в отдельную таблицу
+        db.execute('''
+            INSERT INTO transactions (transaction_type, amount, receipt_filename, transaction_date, uuid)
+            VALUES (?, ?, ?, ?, ?)
+        ''', ("expense", amount, receipt_filename, datetime.now().strftime('%Y-%m-%d'), expense_id))
+        db.commit()
+
+        return redirect(url_for('admin'))  # Возврат на главную страницу
+
+    return render_template('add_expense.html')
+
+
+
+
 # Выход из системы
 @app.route('/logout')
 def logout():
@@ -287,6 +503,7 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
+    init_db()
     try:
         app.run(host='0.0.0.0', port=443, ssl_context=('/etc/letsencrypt/live/repair-31.ru/fullchain.pem', '/etc/letsencrypt/live/repair-31.ru/privkey.pem'))
     except:
