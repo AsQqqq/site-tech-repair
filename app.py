@@ -2,7 +2,10 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, g
 from docx import Document
 import sqlite3, uuid
+from cololog import cololog
 from datetime import datetime
+
+logger = cololog(__name__, path_print=False, log_dir='logs', log_to_file=True)
 
 app = Flask(__name__)
 
@@ -18,10 +21,11 @@ EXPENSES_FOLDER = 'expenses'
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-
+    logger.info(f"Папка для загрузки файлов '{UPLOAD_FOLDER}' создана.")
 
 if not os.path.exists(EXPENSES_FOLDER):
     os.makedirs(EXPENSES_FOLDER)
+    logger.info(f"Папка для расходов '{EXPENSES_FOLDER}' создана.")
 
 
 # Подключение к базе данных
@@ -29,6 +33,7 @@ def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect('database.db')
         g.db.row_factory = sqlite3.Row  # Для удобства работы с результатами запроса (словари)
+        logger.info("Подключение к базе данных установлено.")
     return g.db
 
 # Закрытие подключения к базе данных
@@ -37,6 +42,7 @@ def close_db(error):
     db = getattr(g, 'db', None)
     if db is not None:
         db.close()
+        logger.info("Подключение к базе данных закрыто.")
 
 
 def init_db():
@@ -45,6 +51,7 @@ def init_db():
         with app.open_resource('sqlite/transactions.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
+        logger.info("База данных инициализирована.")
 
 app.secret_key = 'VOvWd8xuPf'
 
@@ -60,6 +67,7 @@ def create_directory_for_order(order_number):
     order_dir = os.path.join(app.config['UPLOAD_FOLDER'], order_number)
     if not os.path.exists(order_dir):
         os.makedirs(order_dir)
+        logger.info(f"Создана папка для заказа с номером {order_number}.")
     return order_dir
 
 
@@ -72,6 +80,7 @@ def is_authenticated():
 @app.route('/')
 def index():
     orders = os.listdir(UPLOAD_FOLDER)
+    logger.info(f"Загружены все заказы: {orders}")
     return render_template('index.html', orders=orders)
 
 
@@ -79,18 +88,20 @@ def index():
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if is_authenticated():
+        logger.info("Пользователь уже авторизован, редирект на главную страницу.")
         return redirect(url_for('main'))  # Переход на страницу загрузки при авторизации
 
     if request.method == 'POST':
         password = request.form.get('password')
         if password == ADMIN_PASSWORD:
             session['authenticated'] = True
+            logger.info("Пользователь авторизовался.")
             return redirect(url_for('main'))  # Переход на страницу загрузки при успешном входе
         else:
+            logger.warning("Неверный пароль при попытке входа.")
             return "Неверный пароль. Попробуйте снова."
 
     return render_template('admin_login.html')
-
 
 
 # Функция для создания папки с уникальным ID траты
@@ -98,9 +109,8 @@ def create_directory_for_expense(expense_id):
     expense_dir = os.path.join(EXPENSES_FOLDER, expense_id)
     if not os.path.exists(expense_dir):
         os.makedirs(expense_dir)
+        logger.info(f"Создана папка для траты с ID {expense_id}.")
     return expense_dir
-
-
 
 
 @app.route('/expenses/<expense_id>/<filename>')
@@ -110,6 +120,7 @@ def serve_expense_file(expense_id, filename):
     
     # Проверяем, существует ли файл
     if not os.path.exists(file_path):
+        logger.error(f"Файл {filename} не найден в папке траты с ID {expense_id}.")
         return "Файл не найден", 404
     
     # Возвращаем файл
@@ -119,11 +130,13 @@ def serve_expense_file(expense_id, filename):
 @app.route('/expense/<expense_id>', methods=['GET'])
 def view_expense(expense_id):
     if not is_authenticated():
+        logger.warning("Попытка просмотра расходов без авторизации.")
         return redirect(url_for('admin'))  # Если не авторизован, перенаправление на страницу логина
     
     # Путь к папке с заказом в директории 'expenses'
     order_dir = os.path.join('expenses', expense_id)  # Папка с заказом внутри expenses
     if not os.path.exists(order_dir):
+        logger.error(f"Трата с ID {expense_id} не найдена.")
         return "Трата не найден", 404
 
     # Путь к DOCX документу
@@ -131,6 +144,7 @@ def view_expense(expense_id):
     doc_path = os.path.join(order_dir, doc_filename)
     
     if not os.path.exists(doc_path):
+        logger.error(f"Документ с ID {expense_id} не найден.")
         return "Документ не найден", 404
 
     # Открытие и чтение документа
@@ -154,8 +168,7 @@ def view_expense(expense_id):
         elif text.startswith('Дата:'):
             order_data['date'] = text.replace('Дата:', '').strip()
 
-    # Формируем URL-адреса для файлов
-    receipt_url = url_for('static', filename=f'expenses/{expense_id}/{order_data["receipt_filename"]}')
+    logger.info(f"Данные по трате {expense_id}: {order_data}")
 
     print(order_data['uuid'])
 
@@ -174,6 +187,7 @@ def view_expense(expense_id):
 @app.route('/main', methods=['GET', 'POST'])
 def main():
     if not is_authenticated():
+        logger.warning("Попытка перейти на главную без авторизации.")
         return redirect(url_for('admin'))
     
     # Получаем запрос из формы поиска
@@ -244,6 +258,8 @@ def main():
         orders = filtered_orders
         expenses = filtered_expenses
 
+    logger.info(f"Итоги: Доходы: {total_income}, Расходы: {total_expenses}, Баланс: {total_balance}")
+
     # Возвращаем шаблон с отфильтрованными заявками и тратами
     return render_template('admin_index.html', 
                            orders=orders, 
@@ -253,12 +269,11 @@ def main():
                            total_balance=total_balance)
 
 
-
-
 # Страница загрузки заявки (upload)
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if not is_authenticated():
+        logger.warning("Попытка загрузить заявку без авторизации.")
         return redirect(url_for('admin'))  # Если не авторизован, перенаправление на страницу логина
 
     if request.method == 'POST':
@@ -282,6 +297,7 @@ def upload():
         try:
             order_date = datetime.strptime(order_date_str, "%d.%m.%Y")
         except ValueError:
+            logger.error(f"Ошибка формата даты для заявки {order_number}. Ожидаемый формат: ДД.ММ.ГГГГ.")
             return "Ошибка: Неверный формат даты. Используйте формат: ДД.ММ.ГГГГ"
 
         # Получение файлов
@@ -348,6 +364,8 @@ def upload():
             VALUES (?, ?, ?, ?, ?)
         ''', ("income", discounted_cost, receipt_filename, datetime.now().strftime('%Y-%m-%d'), order_number))
         db.commit()
+
+        logger.info(f"Заявка с номером {order_number} успешно загружена.")
 
         return redirect(url_for('main'))
 
@@ -438,7 +456,6 @@ def view_order(order_number):
     )
 
 
-
 # Страница для добавления расходов
 @app.route('/add_expense', methods=['GET', 'POST'])
 def add_expense():
@@ -494,13 +511,13 @@ def add_expense():
     return render_template('add_expense.html')
 
 
-
-
 # Выход из системы
 @app.route('/logout')
 def logout():
+    logger.info("Пользователь вышел из системы.")
     session.pop('authenticated', None)
     return redirect(url_for('index'))
+
 
 if __name__ == '__main__':
     init_db()
