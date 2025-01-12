@@ -1,0 +1,79 @@
+/* Основные стили для основной страницы */
+.main-content {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.hero {
+    background-color: #007bff;
+    color: white;
+    padding: 40px;
+    margin-bottom: 40px;
+    border-radius: 8px;
+}
+
+.hero h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 18px;
+    padding-bottom: 10px;
+}
+
+.cta-button {
+    padding: 12px 24px;
+    background-color: #ff0000;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #b30000;
+}
+
+.services {
+    margin: 40px 0;
+}
+
+.service-item {
+    background-color: white;
+    padding: 20px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.service-item h3 {
+    margin: 0 0 10px;
+}
+
+.service-item p {
+    font-size: 16px;
+}
+
+.z-button {
+    padding: 12px 24px;
+    padding-bottom: 10px;
+    background-color: #ff0000;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.z-button:hover {
+    background-color: #b30000;
+}
+
+.address {
+    color: rgb(49, 49, 49);
+    padding-bottom: 10px;
+}

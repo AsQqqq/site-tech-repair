@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/finance.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/footer.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Финансы</title>
+</head>
+<body>
+
+    {% include 'header.html' %}
+
+
+    <!-- Основной контент -->
+    <main class="finance-content">
+        <section class="hero">
+            <h1>Финансы на этой неделе</h1>
+            
+            <!-- Блок с финансовой информацией -->
+            <div class="finance-summary">
+                <div class="summary-item income">
+                    <span class="summary-label">Доходов:</span>
+                    <span class="summary-value">{{ income }} рублей</span>
+                </div>
+                <div class="summary-item expense">
+                    <span class="summary-label">Расходов:</span>
+                    <span class="summary-value">{{ expense }} рублей</span>
+                </div>
+                <div class="summary-item total">
+                    <span class="summary-label">Итог:</span>
+                    <span class="summary-value">{{ result }} рублей</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Кнопка только для админа (перемещена вниз) -->
+        <div class="admin">
+            <div class="admin_button">
+                <a href="#" class="cta-button">Закрыть неделю</a>
+            </div>
+        </div>
+
+        <!-- История расходов и доходов -->
+        <section class="history">
+            <h2>История расходов и доходов</h2>
+            <p class="pc"></p>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Айди</th>
+                        <th>Дата</th>
+                        <th>Описание</th>
+                        <th>Сумма</th>
+                        <th>Тип</th>
+                        <th>Подробнее</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for history in historys %}
+                    <tr>
+                        <td>{{ history.id }}</td>
+                        <td>{{ history.date }}</td>
+                        <td>{{ history.description }}</td>
+                        <td>{{ history.amount }} рублей</td>
+                        <td>{{ history.type }}</td>
+                        <td><button class="details-btn" id="history-{{ history.id }}">Подробнее</button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    {% include 'footer.html' %}
+    
+</body>
+<script src="{{ url_for('static', filename='script/header.js') }}"></script>
+</html>

@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сайт для выездной работы мастера</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+        crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/index.css') }}">
 </head>
 <body>
 
@@ -33,12 +39,9 @@
     <div id="modal">
         <div id="modal-content">
             <button id="close-btn" onclick="closeModal()">×</button>
-            <p>Наш номер телефона: 8 (915) 522-20-06</p>
+            <p>Наш номер телефона:<br>8 (915) 522-20-06</p>
         </div>
     </div>
-
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <!-- Вставляем контент из шаблона в модальное окно -->
-
 </body>
+<script src="{{ url_for('static', filename='script/index.js') }}"></script>
 </html>

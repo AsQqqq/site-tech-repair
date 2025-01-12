@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/newEditReadApplications.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/footer.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    {% if new %}
+    <title>Новая заявка</title>
+    {% elif read %}
+    <title>Заявка</title>
+    {% else %}
+    <title>Редактирование заявки</title>
+    {% endif %}
+</head>
+<body>
+
+    {% include 'header.html' %}
+
+    <!-- Форма ввода нового расхода --> 
+    <main class="main-content">
+        {% if new %}
+        <h2>Новая заявка</h2>
+        {% elif read %}
+        <h2>Заявка {{ id_application }}</h2>
+        {% else %}
+        <h2>Редактирование заявки {{ id_application }}</h2>
+        {% endif %}
+    
+        <form class="expense-form" id="expenseForm" method="POST" action="{{ url_for('new_application') }}"> 
+            <div class="form-group">
+                <label for="expenseDescription">Описание</label>
+                <textarea id="expenseDescription" name="expenseDescription" maxlength="300" required {% if read %}readonly{% endif %}>{{ description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="expenseTitle">Точный адрес</label> 
+                <input type="text" id="expenseTitle" name="expenseTitle" maxlength="70" required {% if read %}readonly{% endif %} value="{{ address }}">
+            </div>
+            <div class="form-group">
+                <label for="expenseClient">Клиент</label> 
+                <input type="text" id="expenseClient" name="expenseClient" maxlength="60" placeholder="Необязательно" {% if read %}readonly{% endif %} value="{{ client }}">
+            </div>
+            {% if read and active %}
+            <button type="button" class="cta-button" id="finish">Завершить заявку</button>
+            {% endif %}
+            {% if read %}
+            <button type="button" class="cta-button" id="back">Вернуться</button>
+            {% else %}
+            <button type="submit" class="cta-button" id="saveButton">Сохранить</button>
+            {% endif %}
+        </form> 
+    </main>    
+
+    {% include 'footer.html' %}
+
+</body>
+<script src="{{ url_for('static', filename='script/header.js') }}"></script>
+<script src="{{ url_for('static', filename='script/base.js') }}"></script>
+{% if new %}
+<script src="{{ url_for('static', filename='script/newApplications.js') }}"></script>
+{% endif %}
+</html>

@@ -1,0 +1,129 @@
+.main-content h2 {
+    text-align: center;
+}
+
+/* Стили для формы */
+.expense-form {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Группы для каждого поля формы */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Стили для меток */
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+/* Стили для текстовых полей, textarea и файлового инпута */
+.form-group input,
+.form-group textarea,
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    max-width: 600px;
+    min-width: 600px;
+    max-height: 700px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+/* Стили для текстовых полей, textarea и файлового инпута при фокусе */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group input[type="file"]:focus {
+    border-color: #ff0000;
+    outline: none;
+}
+
+/* Стили для календаря */
+input[type="datetime-local"]::-webkit-datetime-edit {
+    background-color: #f0f0f0;
+    padding: 5px;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+/* Стили для имени файла */
+.file-name {
+    display: block;
+    margin-top: 10px;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Стили для инпута выбора файла */
+.file-upload {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+/* Стили для текста в textarea */
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.file-upload input[type="file"] {
+    display: none;
+}
+
+.file-upload-label {
+    display: inline-block;
+    background-color: #ff0000;
+    color: white;
+    text-align: center;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.file-upload-label:hover {
+    background-color: #b30000;
+}
+
+.file-upload-label span {
+    display: inline-block;
+}
+
+/* Анимации для полей формы */
+.form-group input,
+.form-group input[type="file"],
+.file-upload-label {
+    transition: background-color 0.3s ease;
+}
+
+/* Стили для кнопки сохранения */
+.cta-button {
+    width: 100%;
+    padding: 14px;
+    background-color: #ff0000;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Стили для кнопки сохранения при hover */
+.cta-button:hover {
+    background-color: #b30000;
+}
+

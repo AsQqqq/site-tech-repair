@@ -1,0 +1,25 @@
+/* Основные стили */
+body {
+    font-family: 'Montserrat', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Стили для футера */
+body {
+    display: flex;
+    flex-direction: column;  /* Выстраиваем элементы страницы в колонку */
+    min-height: 100vh; /* Высота страницы на весь экран */
+}

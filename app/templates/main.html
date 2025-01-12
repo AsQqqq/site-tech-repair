@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/footer.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+</head>
+<body>
+
+    {% include 'header.html' %}
+
+    <!-- Основной контент -->
+    <main class="main-content">
+        <section class="hero">
+            <h1>Админка сайта "ПК Мастер"</h1>
+            <p>Отчеты и суммы</p>
+            <a href="/finance" class="cta-button">Посмотреть</a>
+        </section>
+        
+        <section class="services">
+            <h2>Активные заявки</h2>
+            {% for application in applications %}
+            <div class="service-item">
+                <h3>Заявка {{ application.id }}</h3>
+                <p>{{ application.description }}</p>
+                <p class="address">{{ application.address }}</p>
+                <a href="{{ application.url }}" class="z-button">Подробнее</a>
+            </div>
+            {% endfor %}
+        </section>
+    </main>
+
+    {% include 'footer.html' %}
+
+</body>
+<script src="{{ url_for('static', filename='script/header.js') }}"></script>
+</html>

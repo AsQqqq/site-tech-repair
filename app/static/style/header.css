@@ -1,0 +1,150 @@
+/* Стили для шапки */
+.header-container {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Стили логотипа */
+.logo a {
+    font-size: 24px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Стили для навигации */
+.navigation ul {
+    display: flex;
+    gap: 20px;
+    padding-right: 50px;
+}
+
+.navigation a.profile {
+    color: rgb(215, 252, 255);
+}
+
+.navigation a.profile:hover {
+    color: rgb(37, 240, 255);
+}
+
+.navigation a {
+    color: white;
+    font-size: 16px;
+    transition: color 0.3s;
+    padding-right: 5px;
+}
+
+.navigation a:hover {
+    color: #ff0000;
+}
+
+.main-content {
+    margin-top: 100px;
+}
+
+/* Стили для мобильного меню */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+}
+
+/* Полоски для меню */
+.bar {
+    width: 25px;
+    height: 3px;
+    background-color: white;
+}
+
+/* Крестик для закрытия */
+.close-btn {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    padding-top: 15px;
+}
+
+.close-bar {
+    width: 25px;
+    height: 3px;
+    background-color: white;
+}
+
+.close-bar:nth-child(1) {
+    transform: rotate(45deg);
+    position: relative;
+    top: 0;
+}
+
+.close-bar:nth-child(2) {
+    transform: rotate(-45deg);
+    position: relative;
+    top: -8px; /* Смещаем вторую полоску немного вниз для симметрии */
+}
+
+body:not(.admin) .admin {
+    display: none;
+}
+
+/* Мобильные стили */
+@media (max-width: 768px) {
+    /* Скрыть меню для мобильных устройств */
+    .navigation {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: #333;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .navigation ul {
+        display: block;
+        text-align: center;
+        padding: 0;
+    }
+
+    .navigation li {
+        margin: 20px 0;
+    }
+
+    /* Показать иконку для меню */
+    .menu-toggle {
+        display: flex;
+        padding-right: 40px;
+    }
+
+    /* Показать крестик, когда меню открыто */
+    .navigation.open .close-btn {
+        display: flex;
+        padding-right: 40px;
+    }
+
+    /* Когда меню открыто */
+    .navigation.open {
+        display: flex;
+    }
+}
+
+
+.navigation a[active="true"] {
+    pointer-events: none;
+    color: rgb(170, 0, 0);
+}

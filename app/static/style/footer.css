@@ -1,0 +1,43 @@
+/* Стили для футера */
+.footer-container {
+    background-color: #333; /* Темный фон */
+    color: white; /* Белый текст */
+    padding: 20px 0; /* Отступы сверху и снизу */
+    text-align: center; /* Центрируем текст */
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+.footer-content {
+    max-width: 1200px; /* Ограничиваем ширину */
+    margin: 0 auto; /* Центрируем контент по горизонтали */
+    padding: 0 20px;
+}
+
+.footer-container p {
+    font-size: 14px;
+    margin: 0; /* Убираем отступы */
+    opacity: 0.7; /* Немного прозрачности */
+}
+
+.social-links {
+    margin-top: 10px;
+}
+
+.social-icon {
+    margin: 0 15px; /* Расстояние между иконками */
+    color: white;
+    font-size: 16px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.social-icon:hover {
+    color: #ff0000; /* Красный цвет при наведении */
+}
+
+
+footer {
+    margin-top: auto;  /* Фиксируем футер внизу */
+}

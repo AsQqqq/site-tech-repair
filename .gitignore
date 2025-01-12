@@ -3,3 +3,4 @@ uploads/
 expenses/
 *.db
 logs/
+migrations/
