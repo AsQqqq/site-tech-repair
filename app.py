@@ -511,6 +511,38 @@ def add_expense():
     return render_template('add_expense.html')
 
 
+
+
+@app.route('/reports', methods=['GET'])
+def reports():
+    if not is_authenticated():
+        return redirect(url_for('admin'))  # Если не авторизован, перенаправление на страницу логина
+    
+    # Выполняем запросы для подсчета доходов и расходов
+    db = get_db()
+
+    # Подсчет всех доходов
+    total_income = db.execute(''' 
+        SELECT SUM(amount) FROM transactions WHERE transaction_type = 'income' 
+    ''').fetchone()[0] or 0  # Если результата нет, то сумма 0
+
+    # Подсчет всех расходов
+    total_expenses = db.execute(''' 
+        SELECT SUM(amount) FROM transactions WHERE transaction_type = 'expense' 
+    ''').fetchone()[0] or 0  # Если результата нет, то сумма 0
+
+    # Итог = доходы - расходы
+    total_balance = total_income - total_expenses
+
+    # Возвращаем шаблон с вычисленным временем
+    return render_template('reports.html',
+                total_income=total_income,
+                total_expenses=total_expenses,
+                total_balance=total_balance
+            )
+
+
+
 # Выход из системы
 @app.route('/logout')
 def logout():
