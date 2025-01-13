@@ -7,13 +7,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style/header.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/footer.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='script/textCut.js') }}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Главная</title>
 </head>
 <body>
-
+    
     {% include 'header.html' %}
-
+    
+    {% include 'flash.html' %}
+    
     <!-- Основной контент -->
     <main class="main-content">
         <section class="hero">
@@ -24,14 +27,18 @@
         
         <section class="services">
             <h2>Активные заявки</h2>
+            {% if applications %}
             {% for application in applications %}
             <div class="service-item">
                 <h3>Заявка {{ application.id }}</h3>
-                <p>{{ application.description }}</p>
+                <p class="description">{{ application.description }}</p>
                 <p class="address">{{ application.address }}</p>
-                <a href="{{ application.url }}" class="z-button">Подробнее</a>
+                <a href="{{ application.id }}-application" class="z-button">Подробнее</a>
             </div>
             {% endfor %}
+            {% else %}
+            <p>Нет активных заявок</p>
+            {% endif %}
         </section>
     </main>
 
@@ -39,4 +46,5 @@
 
 </body>
 <script src="{{ url_for('static', filename='script/header.js') }}"></script>
+<script src="{{ url_for('static', filename='script/flash.js') }}"></script>
 </html>

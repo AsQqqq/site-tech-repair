@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/readApplication.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/footer.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Заявка</title>
+</head>
+<body>
+
+    {% include 'header.html' %}
+
+    <!-- Модальное окно подтверждения -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <h3>Вы уверены, что хотите отменить заявку?</h3>
+            <div class="modal-actions">
+                <form id="expenseForm" method="POST" action="{{ url_for('delete_application', id=id_application) }}"> 
+                    <button id="confirmDelete" class="cta-button">Да, отменить</button>
+                </form>
+                <button id="cancelDelete" class="cta-button">Нет, вернуть</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Форма ввода нового расхода --> 
+    <main class="main-content">
+        <h2>Заявка #{{ id_application }}</h2>
+    
+        <div class="expense-form" id="expenseForm">
+            <div class="form-group">
+                <label for="expenseDescription">Описание</label>
+                <textarea id="expenseDescription" name="expenseDescription" maxlength="300" required readonly>{{ description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="expenseTitle">Точный адрес</label> 
+                <input type="text" id="expenseTitle" name="expenseTitle" maxlength="70" required readonly value="{{ address }}">
+            </div>
+            <div class="form-group">
+                <label for="expenseNumber">Номер телефона</label> 
+                <input type="text" id="expenseNumber" name="expenseNumber" maxlength="70" required readonly value="{{ number }}">
+            </div>
+            <div class="form-group">
+                <label for="expenseClient">Клиент</label> 
+                <input type="text" id="expenseClient" name="expenseClient" maxlength="60" placeholder="{% if read %}Пусто{% else %}Необязательно{% endif %}" readonly value="{{ client }}">
+            </div>
+
+            <p class="date_created_at">Дата создания: {{ date }}</p>
+            
+            {% if active and not worked %}
+            <button type="submit" class="cta-button" id="cansel">Отменить заявку</button>
+            {% endif %}
+
+            {% if worked %}
+            <form id="expenseForm" method="GET" action="{{ url_for('end_application_id', id=id_application) }}">
+                <button type="submit" class="cta-button" id="finish">Завершить заявку</button> 
+            </form>
+            {% elif not worked and not closed %}
+            <form id="expenseForm" method="POST" action="{{ url_for('apply_application', id=id_application) }}"> 
+                <button type="submit" class="cta-button" id="apply">Принять заявку</button>
+            </form>
+            {% endif %}
+
+            <button type="button" class="cta-button" id="back">Вернуться</button>
+        </div> 
+    </main>    
+
+    {% include 'footer.html' %}
+
+</body>
+<script src="{{ url_for('static', filename='script/header.js') }}"></script>
+<script src="{{ url_for('static', filename='script/base.js') }}"></script>
+{% if new %}
+<script src="{{ url_for('static', filename='script/newApplications.js') }}"></script>
+{% endif %}
+</html>

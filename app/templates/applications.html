@@ -7,12 +7,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style/header.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/footer.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='script/textCut.js') }}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Заявки</title>
 </head>
 <body>
 
     {% include 'header.html' %}
+    
+    {% include 'flash.html' %}
 
     <!-- Основной контент -->
     <main class="main-content">
@@ -23,34 +26,20 @@
         
         <section class="services">
             <h2>Заявки</h2>
+
+            {% if applications %}
+            {% for application in applications %}
             <div class="service-item">
-                <h3>Заявка 000001</h3>
-                <p>Активно</p>
-                <p>Что то не так с телефоном</p>
-                <p class="address">Старый Оскол, Жуково 21</p>
-                <a href="#" class="z-button">Подробнее</a>
+                <h3>Заявка {{ application.id }}</h3>
+                <p>{% if application.status.value == "active" %}Активно{% elif application.status.value == "closed" %}Закрыто{% else %}В работе{% endif %}</p>
+                <p class="description">{{ application.description }}</p>
+                <p class="address">{{ application.address }}</p>
+                <a href="{{ application.id }}-application" class="z-button">Подробнее</a>
             </div>
-            <div class="service-item">
-                <h3>Заявка 000002</h3>
-                <p>Закрыто</p>
-                <p>Видеокарта шумит</p>
-                <p class="address">Старый Оскол, Макаренко 33</p>
-                <a href="#" class="z-button">Подробнее</a>
-            </div>
-            <div class="service-item">
-                <h3>Заявка 000003</h3>
-                <p>Активно</p>
-                <p>Телевизор не видит каналов и ...</p>
-                <p class="address">Губкин, мкр 1</p>
-                <a href="#" class="z-button">Подробнее</a>
-            </div>
-            <div class="service-item">
-                <h3>Заявка 000004</h3>
-                <p>Активно</p>
-                <p>Не влкючается ПК</p>
-                <p class="address">Старый Оскол, Степной 12</p>
-                <a href="#" class="z-button">Подробнее</a>
-            </div>
+            {% endfor %}
+            {% else %}
+            <p>Заявок нет</p>
+            {% endif %}
         </section>
     </main>
 
@@ -58,4 +47,5 @@
     
 </body>
 <script src="{{ url_for('static', filename='script/header.js') }}"></script>
+<script src="{{ url_for('static', filename='script/flash.js') }}"></script>
 </html>

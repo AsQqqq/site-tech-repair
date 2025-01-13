@@ -1,0 +1,104 @@
+.main-content h2 {
+    text-align: center;
+}
+
+.main-content {
+    padding-bottom: 50px;
+}
+
+/* Стили для формы */
+.expense-form {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Группы для каждого поля формы */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Стили для меток */
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.date_created_at {
+    text-align: center;
+    color: rgb(98, 98, 98);
+}
+
+/* Стили для текстовых полей, textarea и файлового инпута */
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    max-width: 600px;
+    min-width: 600px;
+    max-height: 700px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .form-group input,
+    .form-group textarea {
+        min-width: 100px;
+    }
+}
+
+.form-group input:read-only,
+.form-group textarea:read-only {
+    cursor: default;
+}
+
+/* Стили для текстовых полей, textarea и файлового инпута при фокусе */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group input[type="file"]:focus {
+    border-color: #ff0000;
+    outline: none;
+}
+
+/* Стили для текстовых полей, textarea и файлового инпута при фокусе */
+.form-group input:focus:read-only,
+.form-group textarea:focus:read-only,
+.form-group input[type="file"]:focus:read-only {
+    border-color: #ddd;
+    outline: none;
+    cursor: default;
+}
+
+
+/* Стили для кнопки сохранения */
+.cta-button {
+    width: 100%;
+    padding: 14px;
+    background-color: #ff0000;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Стили для кнопки сохранения при hover */
+.cta-button:hover {
+    background-color: #b30000;
+}
+
+#finish,
+#cansel,
+#saveButton {
+    margin-bottom: 10px;
+}
