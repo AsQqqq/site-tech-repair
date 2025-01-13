@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/readApplication.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style/header.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style/footer.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -74,7 +72,6 @@
     {% include 'footer.html' %}
 
 </body>
-<script src="{{ url_for('static', filename='script/header.js') }}"></script>
 <script src="{{ url_for('static', filename='script/base.js') }}"></script>
 {% if new %}
 <script src="{{ url_for('static', filename='script/newApplications.js') }}"></script>

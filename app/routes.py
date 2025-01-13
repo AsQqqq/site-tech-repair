@@ -55,8 +55,10 @@ def admin():
     applications = Contract.query.filter(Contract.status == "active").all()
 
     username = current_user.first_name
+    active_application = current_user.active_applications
     return render_template('main.html', 
         applications=applications, 
+        active_application=active_application,
         menu_items=get_admin_header(), 
         active_page='home', 
         profile_name=username
@@ -69,10 +71,12 @@ def applications():
     applications = Contract.query.all()
     
     username = current_user.first_name
+    active_application = current_user.active_applications
     
     # Передаем данные в шаблон
     return render_template('applications.html', 
                            menu_items=get_admin_header(), 
+                           active_application=active_application,
                            active_page='applications', 
                            profile_name=username,
                            applications=applications)
@@ -116,8 +120,10 @@ def finance():
         },
     ]
     username = current_user.first_name
+    active_application = current_user.active_applications
     return render_template('finance.html', 
         menu_items=get_admin_header(), 
+        active_application=active_application,
         income=income, 
         expense=expense, 
         result=result, 
@@ -132,8 +138,10 @@ def finance():
 def new_expense():
     if is_admin():
         username = current_user.first_name
+        active_application = current_user.active_applications
         return render_template('newExpense.html', 
             menu_items=get_admin_header(), 
+            active_application=active_application,
             active_page='new-expense', 
             profile_name=username
         )
@@ -161,8 +169,10 @@ def new_application():
         
         return redirect(url_for('applications'))
     username = current_user.first_name
+    active_application = current_user.active_applications
     return render_template('newApplication.html', 
         menu_items=get_admin_header(), 
+        active_application=active_application,
         profile_name=username
     )
 
@@ -200,10 +210,12 @@ def edit_application(id):
     client = "Client for application #" + id
 
     username = current_user.first_name
+    active_application = current_user.active_applications
     return render_template(
         'newEditReadApplications.html', 
-        menu_items=get_admin_header(), 
-        id_application=id_application, 
+        menu_items=get_admin_header(),
+        id_application=id_application,
+        active_application=active_application,
         description=description, 
         address=address, 
         client=client, 
@@ -230,9 +242,11 @@ def read_application(id):
 
 
     username = current_user.first_name
+    active_application = current_user.active_applications
     return render_template('readApplication.html', 
         active=status,
         worked=worked_application,
+        active_application=active_application,
         closed=True if application.status.value == "closed" else False,
         menu_items=get_admin_header(),
         id_application=id_application,
@@ -241,7 +255,8 @@ def read_application(id):
         address=address, 
         client=client,
         number=number,
-        profile_name=username
+        profile_name=username,
+        active_page='application'
     )
 
 
@@ -261,12 +276,14 @@ def end_application_id(id):
 
 
         username = current_user.first_name
+        active_application = current_user.active_applications
         return render_template('endApplication.html', 
             menu_items=get_admin_header(),
             id=id,
             created_at=created_at,
             address=address,
             client=client,
+            active_application=active_application,
             description=description,
             performer=performer,
             acceotance_date=acceotance_date,

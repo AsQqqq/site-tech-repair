@@ -42,7 +42,7 @@
             </div>
             <div class="form-group">
                 <label for="expenseAmount">Сумма</label> 
-                <input type="number" id="expenseAmount" name="expenseAmount" min="0" step="0.01" required>
+                <input type="number" id="expenseAmount" name="expenseAmount" required readonly placeholder="Сумма услуг">
             </div>
             <div class="form-group">
                 <label for="expenseRecommendation">Рекомендации исполнителя</label>
@@ -60,7 +60,18 @@
                 <label>Информация</label>
                 <input type="text" maxlength="70" readonly value="Документ 'прием-передачи' передать в офис">
             </div>
-            
+
+            <h2>-------------</h2>
+
+            <!-- Блок для добавления услуг -->
+            <div id="servicesContainer" class="service">
+                <h3>Добавьте услугу</h3>
+            </div>
+
+            <h2>-------------</h2>
+
+            <button type="button" class="cta-button" id="service" onclick="addService()">Добавить услугу</button>
+                
             <button type="submit" class="cta-button" id="saveButton">Отправить</button>
             <button type="button" class="cta-button" id="back">Вернуться</button>
         </form> 
@@ -70,6 +81,7 @@
 
 </body>
 <script src="{{ url_for('static', filename='script/header.js') }}"></script>
+<script src="{{ url_for('static', filename='script/endApplication.js') }}"></script>
 <script src="{{ url_for('static', filename='script/base.js') }}"></script>
 {% if new %}
 <script src="{{ url_for('static', filename='script/newApplications.js') }}"></script>
