@@ -356,7 +356,7 @@ def read_application(id):
 
     if application.status.value == "closed" or application.status.value == "checked":
         id_application = int(id)
-        created_at = application.created_at
+        created_at = application.created_at.strftime("%Y-%m-%d %H:%M:%S")
         acceptance_date = application.acceptance_date.strftime("%Y-%m-%d %H:%M:%S")
         client = application.client
         description = application.description
@@ -424,7 +424,7 @@ def read_application(id):
         menu_items=get_admin_header(),
         id_application=id_application,
         description=description,
-        date = application.created_at,
+        date = application.created_at.strftime("%Y-%m-%d %H:%M:%S"),
         address=address, 
         client=client,
         number=number,
@@ -439,13 +439,13 @@ def end_application_id(id):
     if current_user.active_applications == id:
         application = Contract.query.filter(Contract.id == id).first()
 
-        created_at = application.created_at
+        created_at = application.created_at.strftime("%Y-%m-%d %H:%M:%S")
         address = application.address
         client = application.client
         description = application.description
         performer = application.performer
         acceotance_date_pre = datetime.datetime.now()
-        acceotance_date = acceotance_date_pre.strftime('%Y-%m-%d %H:%M')
+        acceotance_date = acceotance_date_pre.strftime("%Y-%m-%d %H:%M:%S")
 
 
         username = current_user.first_name

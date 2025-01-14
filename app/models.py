@@ -2,12 +2,12 @@ from flask_login import UserMixin
 from typing import Optional
 import sqlalchemy as sa
 from sqlalchemy import Enum
-import enum
-import sqlalchemy.orm as so
 from app import db
-
-# Импортировать ForeignKey из sqlalchemy, а не из sqlalchemy.orm
 from sqlalchemy import ForeignKey
+import sqlalchemy.orm as so
+import pytz, datetime, enum
+
+moscow_tz = pytz.timezone('Europe/Moscow')
 
 class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
@@ -37,7 +37,11 @@ class Contract(db.Model):
     __tablename__ = 'contracts'
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    created_at: so.Mapped[sa.DateTime] = so.mapped_column(sa.DateTime, nullable=False, default=sa.func.now())
+    created_at: so.Mapped[sa.DateTime] = so.mapped_column(
+        sa.DateTime(timezone=True), 
+        nullable=False, 
+        default=lambda: datetime.datetime.now(moscow_tz)
+    )
     address: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
     client: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
     description: so.Mapped[str] = so.mapped_column(sa.Text, nullable=False)
