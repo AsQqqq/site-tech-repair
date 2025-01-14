@@ -51,7 +51,8 @@ def get_admin_header():
         applications = Contract.query.filter(Contract.status == "checked").all()
         if len(applications) > 0:
             checked_len = f" ({len(applications)})"
-        checked_len = ""
+        else:
+            checked_len = ""
         menu_items = [
             {'url': '/new-expense', 'label': 'Новый расход', 'page': 'new-expense'},
             {'url': '/weekly-results', 'label': 'Итоги недели', 'page': 'weekly-results'},
