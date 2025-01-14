@@ -2,6 +2,10 @@
     text-align: center;
 }
 
+main {
+    padding-bottom: 50px;
+}
+
 /* Стили для формы */
 .expense-form {
     max-width: 600px;

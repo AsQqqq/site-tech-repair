@@ -1,0 +1,40 @@
+/* Стиль для контейнера с flash-сообщениями */
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 300px;
+}
+
+/* Стиль для каждого flash-сообщения */
+.flash-message {
+    display: none;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* Стиль для успешных сообщений */
+.flash-message.success {
+    background-color: #4CAF50;
+}
+
+/* Стиль для сообщений об ошибках */
+.flash-message.danger {
+    background-color: #f44336;
+}
+
+/* Стиль для крестика */
+.flash-message-close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}

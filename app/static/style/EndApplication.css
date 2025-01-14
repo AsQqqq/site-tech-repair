@@ -106,3 +106,56 @@
 #service {
     margin-bottom: 10px;
 }
+
+
+/* Стиль для кнопки в состоянии :disabled */
+.cta-button:disabled {
+    background-color: #b30000;  /* Светлый серый цвет фона */
+    color: #ffffff;  /* Светлый серый цвет текста */
+    cursor: not-allowed;  /* Курсор не доступен */
+}
+
+
+
+/* Стили для поля загрузки фотографий */
+.form-group input[type="file"] {
+    padding: 8px;
+    font-size: 14px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    display: block;
+    margin-top: 8px;
+}
+
+/* Стили для поля загрузки фотографий при наведении */
+.form-group input[type="file"]:hover {
+    border-color: #ff0000;
+}
+
+/* Стили для поля загрузки фотографий при фокусе */
+.form-group input[type="file"]:focus {
+    border-color: #ff0000;
+    outline: none;
+}
+
+/* Стили для отображения иконки в поле загрузки фотографий */
+.form-group input[type="file"]::-webkit-file-upload-button {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #ff0000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-group input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #b30000;
+}
+
+/* Стили для отображения текста кнопки (например, "Выберите файл") */
+.form-group input[type="file"]::-webkit-file-upload-button:active {
+    background-color: #800000;
+}

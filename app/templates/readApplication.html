@@ -51,7 +51,7 @@
 
             <p class="date_created_at">Дата создания: {{ date }}</p>
             
-            {% if active and not worked %}
+            {% if active and not worked and not checked %}
             <button type="submit" class="cta-button" id="cansel">Отменить заявку</button>
             {% endif %}
 
@@ -59,7 +59,7 @@
             <form id="expenseForm" method="GET" action="{{ url_for('end_application_id', id=id_application) }}">
                 <button type="submit" class="cta-button" id="finish">Завершить заявку</button> 
             </form>
-            {% elif not worked and not closed %}
+            {% elif not worked and not closed and not checked %}
             <form id="expenseForm" method="POST" action="{{ url_for('apply_application', id=id_application) }}"> 
                 <button type="submit" class="cta-button" id="apply">Принять заявку</button>
             </form>

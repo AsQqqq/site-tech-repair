@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/endApplication.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style/header.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style/footer.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -14,12 +12,14 @@
 <body>
 
     {% include 'header.html' %}
+    
+    {% include 'flash.html' %}
 
     <!-- Форма ввода нового расхода --> 
     <main class="main-content">
         <h2>Завершение заявки #{{ id }}</h2>
 
-        <form class="expense-form" id="expenseForm" method="POST" action="{{ url_for('end_application') }}"> 
+        <form class="expense-form" id="expenseForm" method="POST" action="{{ url_for('end_application') }}" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="expenseId">Номер заявки</label>
                 <input type="text" id="expenseId" name="expenseId" maxlength="70" required readonly value="{{ id }}">
@@ -71,6 +71,23 @@
             <h2>-------------</h2>
 
             <button type="button" class="cta-button" id="service" onclick="addService()">Добавить услугу</button>
+
+            
+            <div class="form-group">
+                <label for="photoInput1">Чек</label>
+                <input type="file" id="photoInput1" name="photo1" accept="image/*" class="upload-button" />
+            </div>
+            <div class="form-group">
+                <label for="photoInput2">Лицевая сторона документа</label>
+                <input type="file" id="photoInput2" name="photo2" accept="image/*" class="upload-button" />
+            </div>
+            <div class="form-group">
+                <label for="photoInput3">Задняя сторона документа</label>
+                <input type="file" id="photoInput3" name="photo3" accept="image/*" class="upload-button" />
+            </div>            
+            
+
+            <h2>-------------</h2>
                 
             <button type="submit" class="cta-button" id="saveButton">Отправить</button>
             <button type="button" class="cta-button" id="back">Вернуться</button>
@@ -80,7 +97,6 @@
     {% include 'footer.html' %}
 
 </body>
-<script src="{{ url_for('static', filename='script/header.js') }}"></script>
 <script src="{{ url_for('static', filename='script/endApplication.js') }}"></script>
 <script src="{{ url_for('static', filename='script/base.js') }}"></script>
 {% if new %}

@@ -29,7 +29,7 @@
             {% for application in applications %}
             <div class="service-item">
                 <h3>Заявка {{ application.id }}</h3>
-                <p>{% if application.status.value == "active" %}Активно{% elif application.status.value == "closed" %}Закрыто{% else %}В работе{% endif %}</p>
+                <p>{% if application.status.value == "active" %}Активно{% elif application.status.value == "closed" %}Закрыто{% elif application.status.value == "checked" %}На проверке{% else %}В работе{% endif %}</p>
                 <p class="description">{{ application.description }}</p>
                 <p class="address">{{ application.address }}</p>
                 <a href="{{ application.id }}-application" class="z-button">Подробнее</a>
@@ -44,5 +44,4 @@
     {% include 'footer.html' %}
     
 </body>
-<script src="{{ url_for('static', filename='script/flash.js') }}"></script>
 </html>

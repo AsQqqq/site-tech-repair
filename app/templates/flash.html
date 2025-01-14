@@ -1,3 +1,6 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='style/flash.css') }}">
+<script src="{{ url_for('static', filename='script/flash.js') }}"></script>
+
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         <div class="flash-messages">

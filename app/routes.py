@@ -1,10 +1,15 @@
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from app import app, db, login_manager
 from app.forms import LoginForm
+from werkzeug.utils import secure_filename
 from app.models import User, Contract, Service
-import datetime
 from werkzeug.security import check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
+import datetime, os
+
+
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 
 def is_admin():
@@ -14,7 +19,8 @@ def get_admin_header():
     if is_admin():
         menu_items = [
             {'url': '/new-expense', 'label': 'Новый расход', 'page': 'new-expense'},
-            {'url': '/weekly-results', 'label': 'Итоги недели', 'page': 'weekly-results'}
+            {'url': '/weekly-results', 'label': 'Итоги недели', 'page': 'weekly-results'},
+            {'url': '/application-admin', 'label': 'Заявки на проверке', 'page': 'application-admin'},
         ]
         return menu_items
     return []
@@ -177,28 +183,148 @@ def new_application():
     )
 
 
+# Проверка расширения файла
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 @app.route('/end-application', methods=['POST'])
 @login_required
 def end_application():
     expenseId = request.form.get('expenseId')
-
+    
     if int(current_user.active_applications) == int(expenseId):
+        # Получаем данные из формы
+        expenseCreatedAt = request.form.get('expenseCreatedAt')
+        expenseDescription = request.form.get('expenseDescription')
         expenseClient = request.form.get('expenseClient')
+        expenseAddress = request.form.get('expenseAddress')
         expenseAmount = request.form.get('expenseAmount')
         expenseRecommendation = request.form.get('expenseRecommendation')
+        expensePerformer = request.form.get('expensePerformer')
+        expenseAcceotanceDate = request.form.get('expenseAcceotanceDate')
 
+        # Получаем данные об услугах
+        serviceNames = request.form.getlist('serviceName[]')
+        servicePrices = request.form.getlist('servicePrice[]')
+        serviceQuantities = request.form.getlist('serviceQuantity[]')
+        serviceTotals = request.form.getlist('serviceTotal[]')
+        serviceWarranties = request.form.getlist('serviceWarranty[]')
+
+        # Проверка обязательных полей для заявки
+        missing_fields = []
+
+        if not expenseCreatedAt:
+            missing_fields.append('Дата подачи заявки')
+        if not expenseDescription:
+            missing_fields.append('Описание')
+        if not expenseClient:
+            missing_fields.append('Клиент')
+        if not expenseAddress:
+            missing_fields.append('Адрес')
+        if not expenseAmount:
+            missing_fields.append('Сумма')
+        if not expenseRecommendation:
+            missing_fields.append('Рекомендации')
+        if not expensePerformer:
+            missing_fields.append('Исполнитель')
+        if not expenseAcceotanceDate:
+            missing_fields.append('Дата исполнения')
+
+        # Проверка полей об услугах
+        for i, name in enumerate(serviceNames):
+            if not name or not servicePrices[i] or not serviceQuantities[i] or not serviceTotals[i]:
+                missing_fields.append(f"Услуга {i+1} не заполнена корректно")
+
+        # Определяем словарь с ключами для фотографий и их колонками в базе данных
+        photos = {
+            'photo1': 'photo_receipt',
+            'photo2': 'photo_document_face',
+            'photo3': 'photo_document_back'
+        }
+
+        photo_paths = {}  # Используем словарь для хранения путей к фото
+
+        # Проверяем, что все три фото загружены и валидны
+        for photo_key, column_name in photos.items():
+            photo = request.files.get(photo_key)
+            if photo and allowed_file(photo.filename):
+                filename = secure_filename(photo.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                photo.save(filepath)
+                photo_paths[column_name] = filepath  # Сохраняем путь к фото в словарь
+            else:
+                # Если хотя бы одно фото не загружено или не валидное
+                missing_fields.append(f'{column_name} должно быть загружено и иметь допустимый формат.')
+
+        # Если не загружены все три фотки
+        if len(photo_paths) != 3:
+            missing_fields.append('Пожалуйста, загрузите все три фотографии: чек, лицевая и задняя сторона документа.')
+
+        # Если есть ошибки, возвращаем пользователя на форму
+        if missing_fields:
+            flash(f"Пожалуйста, заполните следующие поля: {', '.join(missing_fields)}", 'error')
+            return redirect(url_for('end_application', id=expenseId))
+
+        acceotance_date = datetime.datetime.now()
+
+        # Сохраняем данные в базу данных
         application = Contract.query.filter_by(id=int(expenseId)).first()
-        application.status = 'closed'
+        application.status = 'checked'
         application.amount = expenseAmount
+        application.acceptance_date = acceotance_date
         application.recommendations = expenseRecommendation
         if application.client != expenseClient:
             application.client = expenseClient
+
+        # Обновляем пути к фотографиям из словаря
+        application.photo_receipt = photo_paths.get('photo_receipt')
+        application.photo_document_face = photo_paths.get('photo_document_face')
+        application.photo_document_back = photo_paths.get('photo_document_back')
+
         db.session.commit()
 
+        # Обработка услуг
+        for i in range(len(serviceNames)):
+            service_name = serviceNames[i]
+            service_price = float(servicePrices[i]) if servicePrices[i] else 0.0
+            service_quantity = int(serviceQuantities[i]) if serviceQuantities[i] else 0
+            service_total = float(serviceTotals[i]) if serviceTotals[i] else 0.0
+            service_warranty = serviceWarranties[i]
+
+            service = Service(
+                contract_id=expenseId,
+                name=service_name,
+                price=service_price,
+                quantity=service_quantity,
+                sum=service_total,
+                warranty=service_warranty
+            )
+            
+            db.session.add(service)
+        
+        db.session.commit()
+
+        # Снимаем активную заявку с пользователя
         current_user.active_applications = None
         db.session.commit()
-        
+
+        # Успешно завершено, перенаправляем
+        flash('Заявка успешно завершена.', 'success')
         return redirect(url_for('applications'))
+    else:
+        flash("Вы не можете завершить эту заявку.", 'error')
+        return redirect(url_for('applications'))
+
+
+
+@app.route('/flash-message', methods=['POST'])
+def flash_message():
+    message = request.form.get('message')
+    if message:
+        flash(message, 'danger')
+        return jsonify({'status': 'success'}), 200
+    return jsonify({'status': 'error'}), 400
 
 
 @app.route('/edit-<id>-application')
@@ -227,6 +353,51 @@ def edit_application(id):
 @login_required
 def read_application(id):
     application = Contract.query.filter(Contract.id == id).first()
+
+    if application.status.value == "closed" or application.status.value == "checked":
+        id_application = int(id)
+        created_at = application.created_at
+        acceptance_date = application.acceptance_date.strftime("%Y-%m-%d %H:%M:%S")
+        client = application.client
+        description = application.description
+        address = application.address
+        number = application.number
+        recommendation = application.recommendations
+        performer = application.performer
+        amount = application.amount
+
+        photo1_db = application.photo_receipt
+        photo2_db = application.photo_document_face
+        photo3_db = application.photo_document_back
+
+        photo1 = str(photo1_db).replace("app/", "").replace("\\", "/")
+        photo2 = str(photo2_db).replace("app/", "").replace("\\", "/")
+        photo3 = str(photo3_db).replace("app/", "").replace("\\", "/")
+
+        username = current_user.first_name
+        active_application = current_user.active_applications
+
+        return render_template('readFinishApplication.html', 
+            id_application=id_application,
+            created_at=created_at,
+            acceptance_date=acceptance_date,
+            status=application.status.value,
+            client=client,
+            description=description,
+            address=address,
+            number=number,
+            recommendation=recommendation,
+            performer=performer,
+            amount=amount,
+            active_application=active_application,
+            photo1=photo1,
+            photo2=photo2,
+            photo3=photo3,
+            profile_name=username,
+            active_page='application',
+            menu_items=get_admin_header(),
+        )
+
     
     id_application = int(id)
     description = application.description
@@ -243,9 +414,11 @@ def read_application(id):
 
     username = current_user.first_name
     active_application = current_user.active_applications
+    checked = True if application.status.value == "checked" else False
     return render_template('readApplication.html', 
         active=status,
         worked=worked_application,
+        checked=checked,
         active_application=active_application,
         closed=True if application.status.value == "closed" else False,
         menu_items=get_admin_header(),

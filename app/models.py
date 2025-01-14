@@ -29,6 +29,7 @@ class User(UserMixin, db.Model):
 class ContractStatus(enum.Enum):
     active = "active"
     closed = "closed"
+    checked = "checked"
     worked = "worked"
 
 
@@ -45,6 +46,14 @@ class Contract(db.Model):
     performer: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
     number: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
     acceptance_date: so.Mapped[Optional[sa.DateTime]] = so.mapped_column(sa.DateTime, nullable=True)
+
+    photo_receipt: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
+    photo_document_face: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
+    photo_document_back: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
+
+    scan_receipt: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
+    scan_document_face: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
+    scan_document_back: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
     
     # Добавляем колонку status с типом Enum
     status: so.Mapped[ContractStatus] = so.mapped_column(Enum(ContractStatus), nullable=False, default=ContractStatus.active)

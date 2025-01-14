@@ -25,3 +25,4 @@ cancelDelete.addEventListener('click', function() {
 confirmDelete.addEventListener('click', function() {
     expenseForm.submit(); // Отправить форму
 });
+
