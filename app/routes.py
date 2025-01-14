@@ -2,6 +2,7 @@ from flask import render_template, flash, redirect, url_for, request, jsonify
 from app import app, db, login_manager
 from app.forms import LoginForm
 from werkzeug.utils import secure_filename
+from pywebpush import webpush, WebPushException
 from app.models import User, Contract, Service, Expense
 from werkzeug.security import check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
@@ -47,10 +48,14 @@ def is_admin():
 
 def get_admin_header():
     if is_admin():
+        applications = Contract.query.filter(Contract.status == "checked").all()
+        if len(applications) > 0:
+            checked_len = f" ({len(applications)})"
+        checked_len = ""
         menu_items = [
             {'url': '/new-expense', 'label': 'Новый расход', 'page': 'new-expense'},
             {'url': '/weekly-results', 'label': 'Итоги недели', 'page': 'weekly-results'},
-            {'url': '/application-admin', 'label': 'Заявки на проверке', 'page': 'application-admin'},
+            {'url': '/application-admin', 'label': f'Заявки на проверке{checked_len}', 'page': 'application-admin'},
         ]
         return menu_items
     return []
@@ -59,6 +64,7 @@ def get_admin_header():
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 @app.route('/')
 def index():
@@ -207,7 +213,7 @@ def new_application():
         )
         db.session.add(new_contract)
         db.session.commit()
-        
+
         return redirect(url_for('applications'))
     username = current_user.first_name
     active_application = current_user.active_applications
@@ -548,6 +554,7 @@ def apply_application(id):
         try:
             # Изменяем статус заявки на 'worked'
             application.status = 'worked'
+            application.performer = f"{current_user.first_name} {current_user.last_name}"
             db.session.commit()
             current_user.active_applications = id
             db.session.commit()
@@ -563,6 +570,7 @@ def apply_application(id):
 
 @app.route('/application-admin')
 @login_required
+@is_admin_wraps
 def application_admin():
     applications = Contract.query.filter(Contract.status == "checked").all()
     
