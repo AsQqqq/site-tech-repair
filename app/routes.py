@@ -123,7 +123,7 @@ def applications():
         active_application=active_application,
         active_page='applications', 
         profile_name=username,
-        applications=applications
+        applications=reversed(applications)
     )
 
 
@@ -173,7 +173,7 @@ def finance():
         income=income, 
         expense=expense, 
         result=result, 
-        historys=historys, 
+        historys=reversed(historys), 
         active_page='finance', 
         profile_name=username
     )
@@ -574,6 +574,11 @@ def apply_application(id):
 @is_admin_wraps
 def application_admin():
     applications = Contract.query.filter(Contract.status == "checked").all()
+
+    if not applications:
+        applications = []
+    else:
+        applications = reversed(applications)
     
     username = current_user.first_name
     active_application = current_user.active_applications
