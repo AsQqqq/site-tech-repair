@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/weekly_results.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='script/textCut.js') }}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+</head>
+<body>
+    
+    {% include 'header.html' %}
+    
+    <!-- Основной контент -->
+    <main class="main-content">
+        <section class="hero">
+            <h1>Недельные отчеты</h1>
+            <form action="/finish_week" method="post">
+                <button type="submit" class="cta-button">Закрыть неделю</button>
+            </form>
+        </section>
+        
+        <section class="services">
+            <h2>Архив</h2>
+            {% if week_folders %}
+            {% for week_folder in week_folders %}
+            <div class="service-item">
+                <h3>Неделя: {{ week_folder }}</h3>
+                <p class="description">Папка с данными за эту неделю</p>
+                <!-- Здесь можно добавить ссылку для дальнейшей обработки, если это необходимо -->
+                <a href="{{ url_for('download_weekly', week_folder=week_folder) }}" class="z-button">Скачать</a>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>Нет записей</p>
+            {% endif %}
+        </section>
+    </main>
+
+    {% include 'footer.html' %}
+
+</body>
+</html>

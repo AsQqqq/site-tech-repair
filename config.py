@@ -6,3 +6,4 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
     'sqlite:///' + os.path.join(basedir, 'app.db')
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER') or 'app/static/uploads/photos'
+    WEEKLY_FOLDER = os.environ.get('WEEKLY_FOLDER') or 'app/static/uploads/weekly'

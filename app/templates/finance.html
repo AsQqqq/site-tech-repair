@@ -37,16 +37,18 @@
         </section>
 
         <!-- Кнопка только для админа (перемещена вниз) -->
+        {% if admin %}
         <div class="admin">
             <div class="admin_button">
-                <a href="#" class="cta-button">Закрыть неделю</a>
+                <a href="/weekly-results" class="cta-button">Закрыть неделю</a>
             </div>
         </div>
+        {% endif %}
 
         <!-- История расходов и доходов -->
         <section class="history">
             <h2>История расходов и доходов</h2>
-            <p class="pc"></p>
+            {% if historys %}
             <table class="history-table">
                 <thead>
                     <tr>
@@ -71,6 +73,9 @@
                     {% endfor %}
                 </tbody>
             </table>
+            {% else %}
+            <p>Записей не найдено</p>
+            {% endif %}
         </section>
     </main>
 
