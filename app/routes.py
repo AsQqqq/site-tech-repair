@@ -123,42 +123,43 @@ def applications():
 @app.route('/finance')
 @login_required
 def finance():
-    income = 50000
-    expense = 10000
-    result = income - expense
+    # Получение доходов
+    contracts = Contract.query.filter(Contract.status == "closed").all()  # Только активные контракты
+    income = sum(service.sum for contract in contracts for service in contract.services)  # Суммируем стоимость всех услуг
 
-    historys = [
-        {
-            "id": "001",
-            "date": "Date for expense #001",
-            "description": "Description for expense #001",
-            "amount": "500",
-            "type": "Доход"
-        },
-        {
-            "id": "002",
-            "date": "Date for expense #002",
-            "description": "Description for expense #002",
-            "amount": "55000",
-            "type": "Доход"
-        },
-        {
-            "id": "003",
-            "date": "Date for expense #003",
-            "description": "Description for expense #003",
-            "amount": "3000",
-            "type": "Расход"
-        },
-        {
-            "id": "004",
-            "date": "Date for expense #004",
-            "description": "Description for expense #004",
-            "amount": "1000",
-            "type": "Доход"
-        },
-    ]
+    # Получение расходов
+    expenses = Expense.query.all()  # Все расходы
+    expense = sum(expense.sum for expense in expenses)  # Суммируем все расходы
+
+    result = income - expense  # Результат (доход - расход)
+
+    # История транзакций (можно добавить дополнительные фильтры по пользователю или другим критериям)
+    historys = []
+    for contract in contracts:
+        for service in contract.services:
+            historys.append({
+                "id": f"Заявка №{contract.id}",
+                "date": contract.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                "description": f"Услуга: {service.name} для контракта {contract.id}",
+                "amount": service.sum,
+                "type": "Доход",
+                "url": f"{contract.id}-application"
+            })
+    
+    for exp in expenses:
+        historys.append({
+            "id": f"Расход №{exp.id}",
+            "date": exp.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            "description": exp.name,
+            "amount": exp.sum,
+            "type": "Расход",
+            "url": f"{exp.id}-expense"
+        })
+
+    # Пользовательская информация
     username = current_user.first_name
     active_application = current_user.active_applications
+
     return render_template('finance.html', 
         menu_items=get_admin_header(), 
         active_application=active_application,
@@ -169,6 +170,8 @@ def finance():
         active_page='finance', 
         profile_name=username
     )
+
+
                            
 
 @app.route('/new-expense')
