@@ -70,14 +70,6 @@
     display: inline-block;
 }
 
-/* Скрыть кнопку, если класс 'admin' отсутствует */
-body:not(.admin) .cta-button {
-    display: none;
-}
-body:not(.admin) .admin_button {
-    display: none;
-}
-
 /* Стили для размещения кнопки внизу */
 .admin {
     margin-top: 40px; /* Отступ сверху */

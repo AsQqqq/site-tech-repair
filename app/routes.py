@@ -1,8 +1,9 @@
-from flask import render_template, flash, redirect, url_for, request, jsonify
+from flask import render_template, flash, redirect, url_for, request, jsonify, send_file
+import tempfile
 from app import app, db, login_manager
 from app.forms import LoginForm
-from werkzeug.utils import secure_filename
-from pywebpush import webpush, WebPushException
+import zipfile
+from openpyxl import Workbook
 from app.models import User, Contract, Service, Expense
 from werkzeug.security import check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
@@ -113,6 +114,11 @@ def admin():
 @login_required
 def applications():
     applications = Contract.query.all()
+
+    if not applications:
+        applications = []
+    else:
+        applications = reversed(applications)
     
     username = current_user.first_name
     active_application = current_user.active_applications
@@ -123,7 +129,7 @@ def applications():
         active_application=active_application,
         active_page='applications', 
         profile_name=username,
-        applications=reversed(applications)
+        applications=applications
     )
 
 
@@ -162,18 +168,24 @@ def finance():
             "type": "Расход",
             "url": f"{exp.id}-expense"
         })
+    
+    if historys:
+        historys = reversed(historys)
+    else:
+        historys = []
 
     # Пользовательская информация
     username = current_user.first_name
     active_application = current_user.active_applications
 
     return render_template('finance.html', 
-        menu_items=get_admin_header(), 
+        menu_items=get_admin_header(),
+        admin=is_admin(),
         active_application=active_application,
         income=income, 
         expense=expense, 
         result=result, 
-        historys=reversed(historys), 
+        historys=historys, 
         active_page='finance', 
         profile_name=username
     )
@@ -307,7 +319,7 @@ def end_application():
 
         # Если есть ошибки, возвращаем пользователя на форму
         if missing_fields:
-            flash(f"Пожалуйста, заполните следующие поля: {', '.join(missing_fields)}", 'error')
+            flash(f"Пожалуйста, заполните следующие поля: {', '.join(missing_fields)}", 'danger')
             return redirect(url_for('end_application', id=expenseId))
 
         acceotance_date = datetime.datetime.now()
@@ -357,7 +369,7 @@ def end_application():
         flash('Заявка успешно завершена.', 'success')
         return redirect(url_for('applications'))
     else:
-        flash("Вы не можете завершить эту заявку.", 'error')
+        flash("Вы не можете завершить эту заявку.", 'danger')
         return redirect(url_for('applications'))
 
 
@@ -397,6 +409,10 @@ def edit_application(id):
 @login_required
 def read_application(id):
     application = Contract.query.filter(Contract.id == id).first()
+
+    if application is None:
+        flash("Заявка не найдена.", 'danger')
+        return redirect(url_for('applications'))
 
     if application.status.value == "closed" or application.status.value == "checked":
         id_application = int(id)
@@ -515,6 +531,7 @@ def end_application_id(id):
             acceotance_date=acceotance_date,
             profile_name=username
         )
+    flash("Вы не можете завершать эту заявку.", 'danger')
     return redirect(url_for('applications'))
 
 
@@ -715,7 +732,7 @@ def end_checked_application():
 
     # Если есть ошибки, возвращаем пользователя на форму
     if missing_fields:
-        flash(f"Пожалуйста, заполните следующие поля: {', '.join(missing_fields)}", 'error')
+        flash(f"Пожалуйста, заполните следующие поля: {', '.join(missing_fields)}", 'danger')
         return redirect(url_for('checked_read_application', id=expenseId))
 
     # Сохраняем данные в базу данных
@@ -802,7 +819,7 @@ def new_expense_admin():
 
     # Если есть ошибки, возвращаем пользователя на форму
     if missing_fields:
-        flash(f"Пожалуйста, заполните следующие поля: {', '.join(missing_fields)}", 'error')
+        flash(f"Пожалуйста, заполните следующие поля: {', '.join(missing_fields)}", 'danger')
         return redirect(url_for('new_expense'))
 
     new_contract = Expense(
@@ -824,6 +841,10 @@ def new_expense_admin():
 @login_required
 def read_expense(id):
     expense = Expense.query.filter(Expense.id == id).first()
+
+    if expense is None:
+        flash('Расход не найден.', 'danger')
+        return redirect(url_for('application_admin'))
 
     name=expense.name
     description=expense.description
@@ -887,7 +908,7 @@ def profile():
     for contract in contracts:
         for service in contract.services:
             total_services += service.quantity
-            total_earnings += service.sum  # Сумма за каждую услугу
+            total_earnings += service.sum
 
     # Подготовим данные для отображения в шаблоне
     username = current_user.username
@@ -907,6 +928,193 @@ def profile():
         menu_items=get_admin_header(),
         active_page='profile'
     )
+
+
+
+# Функция для завершения недели
+def finish_week():
+    # Создание новой папки с текущей датой
+    folder_name = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    folder_path = os.path.join(app.config['WEEKLY_FOLDER'], folder_name)
+    os.makedirs(folder_path)
+
+    # Архив для фото
+    zip_path = os.path.join(folder_path, "photos.zip")
+
+    # Архивируем фотографии (фото из contracts и expenses)
+    with zipfile.ZipFile(zip_path, 'w') as zipf:
+        # Добавляем фото из контрактов
+        applications = Contract.query.filter_by(status='closed').all()
+        add_photos_to_zip(zipf, applications, "contract")
+        # Добавляем фото из расходов
+        expenses = Expense.query.all()
+        add_photos_to_zip(zipf, expenses, "expense")
+    
+    # Данные для Excel
+    excel_data = create_excel_file()
+    # Сохраняем Excel файл
+    excel_path = os.path.join(folder_path, "week_data.xlsx")
+    excel_data.save(excel_path)
+
+    return folder_path
+
+
+# Функция для создания Excel файла с несколькими листами
+def create_excel_file():
+    wb = Workbook()
+
+    # Лист для контрактов
+    ws_contracts = wb.create_sheet("Contracts")
+    # Заголовки для Contracts
+    headers_contracts = ["ID", "Created at", "Address", "Client", "Description", "Amount", "Recommendations", "Performer", "Number", "Acceptance date", "Scan receipt", "Scan face", "Scan back"]
+    ws_contracts.append(headers_contracts)
+
+    # Собирать данные из Contract
+    contracts = Contract.query.filter_by(status='closed').all()
+    for contract in contracts:
+        ws_contracts.append([contract.id, contract.created_at, contract.address, contract.client, contract.description, 
+                             contract.amount, contract.recommendations, contract.performer, contract.number, 
+                             contract.acceptance_date, contract.scan_receipt, contract.scan_document_face, contract.scan_document_back])
+    
+    # Отключаем автоматический флашинг, чтобы избежать ошибок
+    with db.session.no_autoflush:
+        # Удаляем контракты и связанные с ними услуги
+        for contract in contracts:
+            # Удаляем связанные услуги
+            for service in contract.services:
+                db.session.delete(service)
+            db.session.delete(contract)
+
+        # Сохраняем изменения в базе данных
+        db.session.commit()
+
+    # Лист для услуг (Services)
+    ws_services = wb.create_sheet("Services")
+    # Заголовки для Services
+    headers_services = ["ID", "Contract ID", "Name", "Price", "Quantity", "Sum", "Warranty"]
+    ws_services.append(headers_services)
+
+    # Собирать данные из Service
+    for contract in contracts:
+        for service in contract.services:
+            ws_services.append([service.id, service.contract_id, service.name, service.price, service.quantity, service.sum, service.warranty])
+
+    # Лист для расходов (Expenses)
+    ws_expenses = wb.create_sheet("Expenses")
+    # Заголовки для Expenses
+    headers_expenses = ["ID", "Name", "Description", "Performer", "Sum", "Created at", "Scan receipt"]
+    ws_expenses.append(headers_expenses)
+
+    # Собирать данные из Expenses
+    expenses = Expense.query.all()
+    for expense in expenses:
+        ws_expenses.append([expense.id, expense.name, expense.description, expense.performer, expense.sum, expense.created_at, expense.scan_receipt])
+    
+    # Удаляем расходы
+    with db.session.no_autoflush:
+        for expense in expenses:
+            db.session.delete(expense)
+
+        # Сохраняем изменения в базе данных
+        db.session.commit()
+
+    # Удаляем пустую вкладку, которая создается по умолчанию
+    del wb['Sheet']
+
+    return wb
+
+
+# Функция для добавления фотографий в архив
+def add_photos_to_zip(zipf, items, item_type):
+    for item in items:
+        # Пример фото: предполагаем, что фото находятся по этим путям
+        if item_type == "contract":
+            photo_paths = [item.photo_receipt, item.photo_document_face, item.photo_document_back, item.scan_receipt, item.scan_document_face, item.scan_document_back]
+        elif item_type == "expense":
+            photo_paths = [item.scan_receipt]
+        for photo in photo_paths:
+            if photo and os.path.exists(photo):
+                zipf.write(photo, os.path.basename(photo))
+        for photo_path in photo_paths:
+            os.remove(photo_path)
+
+
+@app.route('/finish_week', methods=['POST'])
+@login_required
+@is_admin_wraps
+def finish_week_route():
+    # Проверяем, есть ли хотя бы один контракт или хотя бы одна трата
+    if not Contract.query.filter_by(status='closed').first() and not Expense.query.first():
+        flash("Невозможно завершить неделю: нет завершенных контрактов или расходов.", 'danger')
+        return redirect(url_for('weekly_results'))  # Перенаправляем на нужную страницу (например, страницу с ошибкой или главную)
+
+    # Если контракты или расходы есть, продолжаем выполнение
+    folder_path = finish_week()
+    flash(f"Результаты недели сохранены в папке: {folder_path}", "success")
+    return weekly_results() 
+
+
+@app.route('/weekly-results')
+@login_required
+@is_admin_wraps
+def weekly_results():
+    # Получаем все папки в директории, сортируем их по имени (по дате)
+    weekly_folder = app.config['WEEKLY_FOLDER']
+    week_folders = [folder for folder in os.listdir(weekly_folder) if os.path.isdir(os.path.join(weekly_folder, folder))]
+    week_folders.sort(reverse=True)
+
+    first_name = current_user.first_name
+
+    return render_template('weekly_results.html',
+        week_folders=week_folders,
+        profile_name=first_name,
+        menu_items=get_admin_header(),
+        active_page='weekly-results'
+    )
+
+
+@app.route('/download-weekly-<week_folder>')
+@login_required
+@is_admin_wraps
+def download_weekly(week_folder):
+    try:
+        weekly_folder = app.config['WEEKLY_FOLDER']
+        week_path = os.path.join(weekly_folder, week_folder).replace("/", "\\")
+
+        # Проверяем, существует ли папка
+        if not os.path.isdir(week_path):
+            flash("Папка не найдена", 'danger')
+            return redirect('weekly-results')
+
+        # Фиксированные имена файлов
+        archive_file = 'photos.zip'
+        excel_file = 'week_data.xlsx'
+
+        status_archive = os.path.exists(os.path.join(week_path, archive_file))
+        status_excel = os.path.exists(os.path.join(week_path, excel_file))
+
+        if not status_archive and not status_excel:
+            flash("Не найдены архивный или Excel файлы в папке", 'danger')
+            return redirect('weekly-results')
+
+        # Создание временного архива в системе
+        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+            zip_filename = f"{tmp_file.name}.zip"
+
+        with zipfile.ZipFile(zip_filename, 'w') as zipf:
+            if status_archive:
+                zipf.write(os.path.join(week_path, archive_file), archive_file)
+            if status_excel:
+                zipf.write(os.path.join(week_path, excel_file), excel_file)
+
+        # Отправляем архив с файлами
+        return send_file(zip_filename, as_attachment=True)
+
+    except Exception as e:
+        print(e)
+        flash("Произошла ошибка при скачивании файлов", 'danger')
+        return redirect('weekly-results')
+
 
 
 

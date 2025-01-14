@@ -14,6 +14,9 @@ db = SQLAlchemy(app)
 file_photos = app.config['UPLOAD_FOLDER']
 if os.path.exists(file_photos) == False:
     os.makedirs(file_photos)
+file_photos = app.config['WEEKLY_FOLDER']
+if os.path.exists(file_photos) == False:
+    os.makedirs(file_photos)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
