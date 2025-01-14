@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/main.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="{{ url_for('static', filename='script/textCut.js') }}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +13,6 @@
 <body>
     
     {% include 'header.html' %}
-    
-    {% include 'flash.html' %}
     
     <!-- Основной контент -->
     <main class="main-content">

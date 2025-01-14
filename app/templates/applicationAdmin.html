@@ -17,8 +17,7 @@
     <!-- Основной контент -->
     <main class="main-content">
         <section class="hero">
-            <h1>Параметры заявок</h1>
-            <a href="/new-application" class="cta-button">Создать заявку</a>
+            <h1>Заявки на проверке</h1>
         </section>
         
         <section class="services">
@@ -31,7 +30,7 @@
                 <p>{% if application.status.value == "active" %}Активно{% elif application.status.value == "closed" %}Закрыто{% elif application.status.value == "checked" %}На проверке{% else %}В работе{% endif %}</p>
                 <p class="description">{{ application.description }}</p>
                 <p class="address">{{ application.address }}</p>
-                <a href="{{ application.id }}-application" class="z-button">Подробнее</a>
+                <a href="checked-{{ application.id }}-application" class="z-button">Подробнее</a>
             </div>
             {% endfor %}
             {% else %}

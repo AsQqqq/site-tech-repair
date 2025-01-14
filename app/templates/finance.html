@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/finance.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='script/textCut.js') }}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Финансы</title>
 </head>
 <body>
 
     {% include 'header.html' %}
-
 
     <!-- Основной контент -->
     <main class="finance-content">
@@ -62,10 +63,10 @@
                     <tr>
                         <td>{{ history.id }}</td>
                         <td>{{ history.date }}</td>
-                        <td>{{ history.description }}</td>
+                        <td class="table_description">{{ history.description }}</td>
                         <td>{{ history.amount }} рублей</td>
                         <td>{{ history.type }}</td>
-                        <td><button class="details-btn" id="history-{{ history.id }}">Подробнее</button></td>
+                        <td><a href="{{ history.url }}" class="details-btn">Подробнее</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

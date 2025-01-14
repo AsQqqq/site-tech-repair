@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/readExpense.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Расход</title>
+</head>
+<body>
+
+    {% include 'header.html' %}
+
+    <!-- Модальное окно подтверждения -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <h3>Вы уверены, что хотите удалить расход?</h3>
+            <div class="modal-actions">
+                <form id="expenseForm" method="POST" action="{{ url_for('delete_expense', id=id_expense) }}"> 
+                    <button id="confirmDelete" class="cta-button">Да, удалить</button>
+                </form>
+                <button id="cancelDelete" class="cta-button">Нет, вернуть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Форма ввода нового расхода --> 
+    <main class="main-content">
+        <h2>Заявка #{{ id_expense }}</h2>
+    
+        <div class="expense-form" id="expenseForm">
+            <div class="form-group">
+                <label for="expenseName">Название</label>
+                <input type="text" id="expenseDescription" name="expenseDescription" maxlength="70" required readonly value="{{ name }}">
+            </div>
+            <div class="form-group">
+                <label for="expenseDescription">Описание</label> 
+                <textarea id="expenseName" name="expenseName" maxlength="300" required readonly>{{ description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="expenseSum">Сумма</label> 
+                <input type="text" id="expenseSum" name="expenseSum" maxlength="70" required readonly value="{{ sum }}">
+            </div>
+
+            <p class="date_created_at">Дата создания: {{ date }}</p>
+            
+            <button type="submit" class="cta-button" id="cansel">Удалить заявку</button>
+            <button type="button" class="cta-button" id="back">Вернуться</button>
+        </div> 
+    </main>    
+
+    {% include 'footer.html' %}
+
+</body>
+<script src="{{ url_for('static', filename='script/base.js') }}"></script>
+</html>

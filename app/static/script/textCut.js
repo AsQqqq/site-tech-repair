@@ -19,3 +19,16 @@ document.addEventListener('DOMContentLoaded', function() {
       }
   });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  const maxLength = 35;
+
+  // Для всех элементов с классом 'description'
+  const descriptionElements = document.querySelectorAll('.table_description');
+  descriptionElements.forEach(function(descriptionElement) {
+      // Если текст слишком длинный, обрезаем и добавляем многоточие
+      if (descriptionElement.textContent.length > maxLength) {
+          descriptionElement.textContent = descriptionElement.textContent.substring(0, maxLength) + '...';
+      }
+  });
+});

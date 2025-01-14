@@ -35,10 +35,13 @@
                 </li>
             {% endfor %}
 
-            <li><a href="/logout" active="{% if active_page == 'profile' %}true{% endif %}" class="profile">Выйти ({{ profile_name }})</a></li>
+            <li><a href="/profile" active="{% if active_page == 'profile' %}true{% endif %}" class="profile">Профиль ({{ profile_name }})</a></li>
         </ul>
     </nav>
 </header>
+
+
+{% include 'flash.html' %}
 
 
 <script src="{{ url_for('static', filename='script/header.js') }}"></script>

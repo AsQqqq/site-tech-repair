@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/profile.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='script/textCut.js') }}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль</title>
+</head>
+<body>
+    
+    {% include 'header.html' %}
+
+    <main class="main-content">
+        <div class="profile-container">
+            <div class="profile-header">
+                <h1>{{ first_name }} {{ last_name }} ({{ username }})</h1>
+            </div>
+
+            <div class="profile-statistics">
+                <h2>Статистика</h2>
+                <ul>
+                    <li><strong>Всего заявок:</strong> {{ total_requests }}</li>
+                    <li><strong>Всего услуг:</strong> {{ total_services }}</li>
+                    <li><strong>Заработано:</strong> {{ total_earnings }} ₽</li>
+                </ul>
+            </div>
+
+            <div class="profile-actions">
+                <a href="/logout" class="logout-btn" active="{% if active_page == 'profile' %}true{% endif %}" class="profile">Выйти</a>
+            </div>
+        </div>
+    </main>
+
+    {% include 'footer.html' %}
+</body>
+</html>

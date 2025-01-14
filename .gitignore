@@ -6,6 +6,7 @@ logs/
 migrations/
 generate_data.py
 password_account.py
+generate_push.py
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
