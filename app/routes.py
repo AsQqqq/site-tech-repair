@@ -14,7 +14,6 @@ import datetime, os, random, string
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-
 # Проверка расширения файла
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -61,6 +60,18 @@ def get_admin_header():
         ]
         return menu_items
     return []
+
+
+@app.before_request
+def handle_unknown_page():
+    # Проверяем, что пользователь перешел на несуществующую страницу
+    if not request.endpoint or request.endpoint not in app.view_functions:
+        if current_user.is_authenticated:
+            # Если пользователь авторизован, перенаправляем на /admin
+            return redirect(url_for('admin'))
+        else:
+            # Если пользователь не авторизован, перенаправляем на /
+            return redirect(url_for('index'))
 
 
 @login_manager.user_loader
