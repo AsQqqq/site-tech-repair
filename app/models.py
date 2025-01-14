@@ -85,3 +85,22 @@ class Service(db.Model):
     def __repr__(self):
         return f'<Service {self.name}, Contract ID {self.contract_id}>'
 
+
+class Expense(db.Model):
+    __tablename__ = 'expense'
+
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
+    description: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
+    performer: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
+    sum: so.Mapped[float] = so.mapped_column(sa.Float, nullable=False)
+    created_at: so.Mapped[sa.DateTime] = so.mapped_column(
+        sa.DateTime(timezone=True), 
+        nullable=False, 
+        default=lambda: datetime.datetime.now(moscow_tz)
+    )
+    scan_receipt: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
+    
+    def __repr__(self):
+        return f'<Expense {self.name}, ID {self.id}, Date {self.created_at}>'
+
