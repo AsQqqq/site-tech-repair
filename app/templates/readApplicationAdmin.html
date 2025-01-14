@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/readApplicationAdmin.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Заявка</title>
+</head>
+<body>
+
+    {% include 'header.html' %}
+
+    {% include 'flash.html' %}
+
+    <!-- Модальное окно -->
+    <div id="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); justify-content: center; align-items: center;">
+        <span onclick="closeModal()" style="position: absolute; top: 10px; right: 20px; font-size: 30px; color: white; cursor: pointer;">&times;</span>
+        <img id="modal-image" style="max-width: 90%; max-height: 90%; margin: auto; display: block;">
+    </div>
+
+
+    <!-- Форма ввода нового расхода --> 
+    <main class="main-content">
+        <h2>Заявка #{{ id_application }}</h2>
+    
+        <form class="expense-form" id="expenseForm" method="POST" action="{{ url_for('end_checked_application') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="expenseClient">Создано</label> 
+                <p>{{ created_at }}</p>
+                <label for="expenseClient">Выполнено</label> 
+                <p>{{ acceptance_date }}</p>
+                <label for="expenseClient">Статус</label> 
+                <p>{% if status == "checked" %}На проверке{% else %}Закрыто{% endif %}</p>
+            </div>
+            <div class="form-group">
+                <label for="expenseId">Номер заявки</label>
+                <input type="text" id="expenseId" name="expenseId" maxlength="70" required readonly value="{{ id_application }}">
+            </div>
+            <div class="form-group">
+                <label for="expenseClient">Клиент</label> 
+                <input type="text" id="expenseClient" name="expenseClient" maxlength="60" value="{{ client }}">
+            </div>
+            <div class="form-group">
+                <label for="expenseDescription">Описание</label>
+                <textarea id="expenseDescription" name="expenseDescription" maxlength="300" required>{{ description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="expenseAddress">Адрес</label> 
+                <input type="text" id="expenseAddress" name="expenseAddress" maxlength="70" required value="{{ address }}">
+            </div>
+            <div class="form-group">
+                <label for="expenseNumber">Номер телефона</label> 
+                <input type="text" id="expenseNumber" name="expenseNumber" maxlength="70" required value="{{ number }}">
+            </div>
+            <div class="form-group">
+                <label for="expenseRecommendation">Рекомендации</label> 
+                <input type="text" id="expenseRecommendation" name="expenseRecommendation" maxlength="60" value="{{ recommendation }}">
+            </div>    
+            <div class="form-group">
+                <label for="expensePerformer">Выполнил</label> 
+                <input type="text" id="expensePerformer" name="expensePerformer" maxlength="60" value="{{ performer }}">
+            </div>    
+            <div class="form-group">
+                <label for="expenseAmount">Сумма</label> 
+                <input type="text" id="expenseAmount" name="expenseAmount" maxlength="60" value="{{ amount }}">
+            </div>
+
+            <div class="form-group">
+                <label for="expenseServices">Услуги</label>
+                <ul id="expenseServices">
+                    {% for service in services %}
+                        <li>
+                            <strong>{{ service.name }}</strong>
+                            <span>Цена: {{ service.price }} ₽</span>
+                            <span>Количество: {{ service.quantity }}</span>
+                            <span>Сумма: {{ service.sum }} ₽</span>
+                            {% if service.warranty %}
+                                <span class="warranty">Гарантия: {{ service.warranty }}</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>                      
+
+            <!-- Кнопки для предпросмотра -->
+            <div class="form-group preview-buttons">
+                <button type="button" class="cta-button" id="photo" onclick="openModal('{{ photo1 }}')">Открыть чек</button>
+                <button type="button" class="cta-button" id="photo" onclick="openModal('{{ photo2 }}')">Открыть страницу 1</button>
+                <button type="button" class="cta-button" id="photo" onclick="openModal('{{ photo3 }}')">Открыть страницу 2</button>
+            </div>
+
+            <div class="form-group">
+                <label for="photoInput1">Чек</label>
+                <input type="file" id="photoInput1" name="photo1" accept="image/*" class="upload-button" />
+            </div>
+            <div class="form-group">
+                <label for="photoInput2">Лицевая сторона документа</label>
+                <input type="file" id="photoInput2" name="photo2" accept="image/*" class="upload-button" />
+            </div>
+            <div class="form-group">
+                <label for="photoInput3">Задняя сторона документа</label>
+                <input type="file" id="photoInput3" name="photo3" accept="image/*" class="upload-button" />
+            </div> 
+
+            <button type="submit" class="cta-button" id="saveButton">Закрыть заявку</button>
+            <button type="button" class="cta-button" id="back">Вернуться</button>
+        </form>
+    </main>    
+
+    {% include 'footer.html' %}
+
+</body>
+<script src="{{ url_for('static', filename='script/base.js') }}"></script>
+<script src="{{ url_for('static', filename='script/readApplicationAdmin.js') }}"></script>
+</html>

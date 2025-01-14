@@ -1,0 +1,268 @@
+.main-content h2 {
+    text-align: center;
+}
+
+main {
+    padding-bottom: 50px;
+}
+
+/* Стили для формы */
+.expense-form {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Группы для каждого поля формы */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Стили для меток */
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.date_created_at {
+    text-align: center;
+    color: rgb(98, 98, 98);
+}
+
+/* Стили для текстовых полей, textarea и файлового инпута */
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    max-width: 600px;
+    min-width: 600px;
+    max-height: 700px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .form-group input,
+    .form-group textarea {
+        min-width: 100px;
+    }
+}
+
+.form-group input:read-only,
+.form-group textarea:read-only {
+    cursor: default;
+}
+
+/* Стили для текстовых полей, textarea и файлового инпута при фокусе */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group input[type="file"]:focus {
+    border-color: #ff0000;
+    outline: none;
+}
+
+/* Стили для текстовых полей, textarea и файлового инпута при фокусе */
+.form-group input:focus:read-only,
+.form-group textarea:focus:read-only,
+.form-group input[type="file"]:focus:read-only {
+    border-color: #ddd;
+    outline: none;
+    cursor: default;
+}
+
+
+/* Стили для кнопки сохранения */
+.cta-button {
+    width: 100%;
+    padding: 14px;
+    background-color: #ff0000;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Стили для кнопки сохранения при hover */
+.cta-button:hover {
+    background-color: #b30000;
+}
+
+#finish,
+#saveButton,
+#apply {
+    margin-bottom: 10px;
+}
+
+#cansel {
+    margin-bottom: 50px;
+}
+
+/* Стиль для модального окна */
+.modal {
+    display: none; /* Скрыть по умолчанию */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Тень фона */
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 15% auto;
+    width: 300px;
+    text-align: center;
+}
+
+.modal-actions button {
+    margin: 10px;
+}
+
+
+
+/* Стиль для модального окна */
+#modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#modal-img {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+#close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.form-group #photo {
+    margin-bottom: 5px;
+}
+
+/* Стили для раздела услуг */
+.form-group ul#expenseServices {
+    list-style-type: none;  /* Убираем стандартные маркеры */
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Стили для каждого элемента списка услуг */
+.form-group ul#expenseServices li {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+/* Эффект при наведении на элемент списка */
+.form-group ul#expenseServices li:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для названия услуги */
+.form-group ul#expenseServices li strong {
+    font-size: 18px;
+    color: #ff0000;
+    margin-bottom: 5px; 
+    display: block;
+}
+
+/* Стили для цен, количеств и сумм */
+.form-group ul#expenseServices li span {
+    display: block;
+    margin-top: 5px;
+    font-size: 14px;
+    color: #555;
+}
+
+/* Стили для информации о гарантии */
+.form-group ul#expenseServices li .warranty {
+    font-style: italic;
+    color: #888;
+}
+
+/* Стили для раздела услуг */
+.form-group label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    display: block;
+    text-align: left;
+}
+
+
+/* Стили для поля загрузки фотографий */
+.form-group input[type="file"] {
+    padding: 8px;
+    font-size: 14px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    display: block;
+    margin-top: 8px;
+}
+
+/* Стили для поля загрузки фотографий при наведении */
+.form-group input[type="file"]:hover {
+    border-color: #ff0000;
+}
+
+/* Стили для поля загрузки фотографий при фокусе */
+.form-group input[type="file"]:focus {
+    border-color: #ff0000;
+    outline: none;
+}
+
+/* Стили для отображения иконки в поле загрузки фотографий */
+.form-group input[type="file"]::-webkit-file-upload-button {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #ff0000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-group input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #b30000;
+}
+
+/* Стили для отображения текста кнопки (например, "Выберите файл") */
+.form-group input[type="file"]::-webkit-file-upload-button:active {
+    background-color: #800000;
+}
