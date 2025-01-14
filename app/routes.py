@@ -806,6 +806,55 @@ def new_expense_admin():
     return redirect(url_for('application_admin'))
 
 
+@app.route('/<id>-expense')
+@login_required
+def read_expense(id):
+    expense = Expense.query.filter(Expense.id == id).first()
+
+    name=expense.name
+    description=expense.description
+    sum=expense.sum
+    date=expense.created_at
+
+    scan_db = expense.scan_receipt
+    scan = str(scan_db).replace("app/", "").replace("\\", "/")
+
+    username = current_user.first_name
+    active_application = current_user.active_applications
+
+    return render_template('readExpense.html', 
+        id_expense=id,
+        name=name,
+        description=description,
+        sum=sum,
+        date=date,
+        photo=scan,
+        active_application=active_application,
+        profile_name=username,
+        active_page='application',
+        menu_items=get_admin_header(),
+    )
+
+
+@app.route('/delete_expense/<int:id>', methods=['POST'])
+@login_required
+def delete_expense(id):
+    expense = Expense.query.filter_by(id=id).first()
+
+    if expense:
+        try:
+            db.session.delete(expense)
+            db.session.commit()
+            flash('Расход успешно удалена!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash('Ошибка при удалении расхода.', 'danger')
+    else:
+        flash('Расход не найдена.', 'danger')
+
+    return redirect(url_for('finance'))
+
+
 
 @app.route('/logout')
 def logout():
