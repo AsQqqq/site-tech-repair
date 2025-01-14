@@ -855,6 +855,46 @@ def delete_expense(id):
     return redirect(url_for('finance'))
 
 
+@app.route('/profile')
+@login_required
+def profile():
+    # Фильтруем заявки, выполненные пользователем
+    contracts = Contract.query.filter(
+        (Contract.performer == f"{current_user.first_name} {current_user.last_name}") &
+        (Contract.status == "closed")  # Только завершенные контракты
+    ).join(Service).all()
+
+    # Считаем количество заявок
+    total_requests = len(contracts)
+
+    # Считаем количество услуг и общую сумму заработка
+    total_services = 0
+    total_earnings = 0.0
+    for contract in contracts:
+        for service in contract.services:
+            total_services += service.quantity
+            total_earnings += service.sum  # Сумма за каждую услугу
+
+    # Подготовим данные для отображения в шаблоне
+    username = current_user.username
+    first_name = current_user.first_name
+    last_name = current_user.last_name
+    active_application = current_user.active_applications
+
+    return render_template('profile.html',
+        first_name=first_name,
+        last_name=last_name,
+        username=username,
+        profile_name=first_name,
+        active_application=active_application,
+        total_requests=total_requests,
+        total_services=total_services,
+        total_earnings=total_earnings,
+        menu_items=get_admin_header(),
+        active_page='profile'
+    )
+
+
 
 @app.route('/logout')
 def logout():

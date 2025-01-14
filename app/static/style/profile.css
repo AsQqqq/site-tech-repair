@@ -1,0 +1,132 @@
+/* Стили для контейнера профиля */
+.profile-container {
+    padding-top: 50px;
+    width: 80%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Стили для заголовка профиля */
+.profile-header h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Стили для секции статистики */
+.profile-statistics {
+    background-color: #f7f7f7;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.profile-statistics h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.profile-statistics ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.profile-statistics li {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #555;
+}
+
+/* Стили для действия с кнопкой "Выйти" */
+.profile-actions {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* Кнопка "Выйти" */
+.logout-btn {
+    padding: 12px 30px;
+    background-color: #f44336;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    letter-spacing: 1px;
+}
+
+.logout-btn:hover {
+    background-color: #d32f2f;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.logout-btn:active {
+    transform: translateY(1px);
+}
+
+/* Мобильная версия */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 20px;
+    }
+
+    .profile-header h1 {
+        font-size: 28px;
+    }
+
+    .profile-statistics h2 {
+        font-size: 20px;
+    }
+
+    .profile-statistics li {
+        font-size: 16px;
+    }
+
+    .logout-btn {
+        padding: 10px 25px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-container {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .profile-header h1 {
+        font-size: 24px;
+    }
+
+    .profile-statistics h2 {
+        font-size: 18px;
+    }
+
+    .profile-statistics li {
+        font-size: 14px;
+    }
+
+    .logout-btn {
+        padding: 8px 20px;
+        font-size: 14px;
+    }
+}
