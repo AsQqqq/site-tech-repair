@@ -2,15 +2,32 @@ from flask import render_template, flash, redirect, url_for, request, jsonify
 from app import app, db, login_manager
 from app.forms import LoginForm
 from werkzeug.utils import secure_filename
-from app.models import User, Contract, Service
+from app.models import User, Contract, Service, Expense
 from werkzeug.security import check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from functools import wraps
-import datetime, os
+import datetime, os, random, string
 
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+
+# Проверка расширения файла
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# Функция для генерации уникального 16-значного названия
+def generate_unique_filename(upload_folder, extension):
+    while True:
+        # Генерируем случайную строку из букв и цифр
+        filename = ''.join(random.choices(string.ascii_letters + string.digits, k=16)) + f".{extension}"
+        filepath = os.path.join(upload_folder, filename)
+        
+        # Проверяем, существует ли файл
+        if not os.path.exists(filepath):
+            return filename
 
 
 def is_admin_wraps(f):
@@ -24,9 +41,9 @@ def is_admin_wraps(f):
     return decorated_function
 
 
-
 def is_admin():
     return current_user.is_authenticated and current_user.is_active and int(current_user.level) >= 10
+
 
 def get_admin_header():
     if is_admin():
@@ -37,6 +54,7 @@ def get_admin_header():
         ]
         return menu_items
     return []
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -94,11 +112,12 @@ def applications():
     
     # Передаем данные в шаблон
     return render_template('applications.html', 
-                           menu_items=get_admin_header(), 
-                           active_application=active_application,
-                           active_page='applications', 
-                           profile_name=username,
-                           applications=applications)
+        menu_items=get_admin_header(), 
+        active_application=active_application,
+        active_page='applications', 
+        profile_name=username,
+        applications=applications
+    )
 
 
 @app.route('/finance')
@@ -156,15 +175,14 @@ def finance():
 @login_required
 @is_admin_wraps
 def new_expense():
-    if is_admin():
-        username = current_user.first_name
-        active_application = current_user.active_applications
-        return render_template('newExpense.html', 
-            menu_items=get_admin_header(), 
-            active_application=active_application,
-            active_page='new-expense', 
-            profile_name=username
-        )
+    username = current_user.first_name
+    active_application = current_user.active_applications
+    return render_template('newExpense.html', 
+        menu_items=get_admin_header(), 
+        active_application=active_application,
+        active_page='new-expense', 
+        profile_name=username
+    )
 
 
 @app.route('/new-application', methods=['GET', 'POST'])
@@ -195,11 +213,6 @@ def new_application():
         active_application=active_application,
         profile_name=username
     )
-
-
-# Проверка расширения файла
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/end-application', methods=['POST'])
@@ -263,13 +276,20 @@ def end_application():
         for photo_key, column_name in photos.items():
             photo = request.files.get(photo_key)
             if photo and allowed_file(photo.filename):
-                filename = secure_filename(photo.filename)
+                # Получаем расширение файла
+                extension = photo.filename.rsplit('.', 1)[1].lower()
+
+                # Генерируем уникальное имя
+                filename = generate_unique_filename(app.config['UPLOAD_FOLDER'], extension)
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+                # Сохраняем файл
                 photo.save(filepath)
                 photo_paths[column_name] = filepath  # Сохраняем путь к фото в словарь
             else:
                 # Если хотя бы одно фото не загружено или не валидное
                 missing_fields.append(f'{column_name} должно быть загружено и иметь допустимый формат.')
+
 
         # Если не загружены все три фотки
         if len(photo_paths) != 3:
@@ -657,13 +677,20 @@ def end_checked_application():
     for photo_key, column_name in photos.items():
         photo = request.files.get(photo_key)
         if photo and allowed_file(photo.filename):
-            filename = secure_filename(photo.filename)
+            # Получаем расширение файла
+            extension = photo.filename.rsplit('.', 1)[1].lower()
+
+            # Генерируем уникальное имя
+            filename = generate_unique_filename(app.config['UPLOAD_FOLDER'], extension)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+            # Сохраняем файл
             photo.save(filepath)
             photo_paths[column_name] = filepath  # Сохраняем путь к фото в словарь
         else:
             # Если хотя бы одно фото не загружено или не валидное
             missing_fields.append(f'{column_name} должно быть загружено и иметь допустимый формат.')
+
 
     # Если не загружены все три фотки
     if len(photo_paths) != 3:
@@ -707,6 +734,72 @@ def end_checked_application():
 
     # Успешно завершено, перенаправляем
     flash('Заявка успешно закрыта.', 'success')
+    return redirect(url_for('application_admin'))
+
+
+@app.route('/new-expense-admin', methods=['POST'])
+@login_required
+@is_admin_wraps
+def new_expense_admin():
+    expenseTitle = request.form.get('expenseTitle')
+    expenseDescription = request.form.get('expenseDescription')
+    expenseAmount = request.form.get('expenseAmount')
+    expenseDate = request.form.get('expenseDate')
+
+    # Проверка обязательных полей для заявки
+    missing_fields = []
+
+    if not expenseTitle:
+        missing_fields.append('Название')
+    if not expenseDescription:
+        missing_fields.append('Описание')
+    if not expenseAmount:
+        missing_fields.append('Сумма')
+    if not expenseDate:
+        missing_fields.append('Дата и время покупки')
+
+    photos = {
+        'photo1': 'photo_receipt'
+    }
+
+    photo_paths = {}
+
+    for photo_key, column_name in photos.items():
+        photo = request.files.get(photo_key)
+        if photo and allowed_file(photo.filename):
+            # Получаем расширение файла
+            extension = photo.filename.rsplit('.', 1)[1].lower()
+            
+            # Генерируем уникальное имя
+            filename = generate_unique_filename(app.config['UPLOAD_FOLDER'], extension)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            # Сохраняем файл
+            photo.save(filepath)
+            photo_paths[column_name] = filepath
+        else:
+            missing_fields.append(f'{column_name} должно быть загружено и иметь допустимый формат.')
+
+    if len(photo_paths) != 1:
+        missing_fields.append('Пожалуйста, загрузите чек от покупки.')
+
+    # Если есть ошибки, возвращаем пользователя на форму
+    if missing_fields:
+        flash(f"Пожалуйста, заполните следующие поля: {', '.join(missing_fields)}", 'error')
+        return redirect(url_for('new_expense'))
+
+    new_contract = Expense(
+        name=expenseTitle,
+        description=expenseDescription,
+        performer=f"{current_user.first_name} {current_user.last_name}",
+        sum=expenseAmount,
+        scan_receipt=photo_paths.get('photo_receipt')
+    )
+    db.session.add(new_contract)
+    db.session.commit()
+
+    # Успешно завершено, перенаправляем
+    flash('Трата добавлена', 'success')
     return redirect(url_for('application_admin'))
 
 

@@ -12,11 +12,13 @@
 
     {% include 'header.html' %}
 
+    {% include 'flash.html' %}
+
     <!-- Форма ввода нового расхода --> 
     <main class="main-content">
         <h2>Новый расход</h2>
 
-        <form class="expense-form" id="expenseForm"> 
+        <form class="expense-form" id="expenseForm" method="POST" action="{{ url_for('new_expense_admin') }}" enctype="multipart/form-data"> 
             <div class="form-group"> 
                 <label for="expenseTitle">Короткое название</label> 
                 <input type="text" id="expenseTitle" name="expenseTitle" maxlength="20" required> 
@@ -34,14 +36,8 @@
                 <input type="datetime-local" id="expenseDate" name="expenseDate" required>
             </div>
             <div class="form-group">
-                <label for="receiptFile">Прикрепить чек</label>
-                <div class="file-upload">
-                    <label for="receiptFile" class="file-upload-label">
-                        <span>Выбрать файл</span>
-                    </label>
-                    <input type="file" id="receiptFile" name="receiptFile" accept="image/*,.pdf" required>
-                    <span id="fileName" class="file-name"></span>
-                </div>
+                <label for="photoInput1">Чек</label>
+                <input type="file" id="photoInput1" name="photo1" accept="image/*" class="upload-button" />
             </div>
             <button type="submit" class="cta-button" id="saveButton">Сохранить</button> 
         </form> 
