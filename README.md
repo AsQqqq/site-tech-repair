@@ -19,8 +19,8 @@
    Скачайте проект на ваш компьютер с помощью Git:
 
    ```bash
-   git clone https://github.com/yourusername/your-repository.git
-   cd your-repository
+   git clone https://github.com/AsQqqq/site-tech-repair.git
+   cd site-tech-repair
    ```
 
 2. **Создать виртуальное окружение**
