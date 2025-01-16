@@ -1,14 +1,12 @@
 from flask import render_template, flash, redirect, url_for, request, jsonify, send_file
-import tempfile
 from app import app, db, login_manager
 from app.forms import LoginForm
-import zipfile
 from openpyxl import Workbook
 from app.models import User, Contract, Service, Expense
 from werkzeug.security import check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from functools import wraps
-import datetime, os, random, string
+import datetime, os, random, string, zipfile, tempfile, requests
 
 
 
@@ -242,6 +240,57 @@ def new_application():
         )
         db.session.add(new_contract)
         db.session.commit()
+
+        token = app.config['TOKEN']
+        group_id = app.config['GROUP_ID']
+
+        client_ = "Не указано" if not client else client
+        applications_last_id = Contract.query.filter(
+            Contract.status == "active"
+        ).order_by(Contract.id.desc()).first()
+
+        if applications_last_id:
+            last_id = applications_last_id.id
+        else:
+            last_id = None
+
+        message = f"""
+Новый заказ - #{last_id}
+-----------
+Описание:
+```{description}```
+-----------
+Адрес: 
+{address}
+-----------
+Клиент:
+{client_}
+-----------
+Номер для связи:
+```{number}```
+-----------
+Создал ```{performer}```
+Посмотреть:
+https://repair-31.ru/{last_id}-application
+        """
+
+        url = f'https://api.telegram.org/bot{token}/sendMessage'
+        
+        # Параметры запроса
+        params = {
+            'chat_id': group_id,
+            'text': message,
+            'parse_mode': 'Markdown'
+        }
+
+        # Отправка POST-запроса
+        response = requests.post(url, params=params)
+        
+        # Проверка ответа
+        if response.status_code == 200:
+            print("Сообщение успешно отправлено!")
+        else:
+            print(f"Ошибка: {response.status_code}, {response.text}")
 
         return redirect(url_for('applications'))
     username = current_user.first_name
