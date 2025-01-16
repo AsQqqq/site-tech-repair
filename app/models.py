@@ -177,6 +177,7 @@ class API(db.Model):
         sa.DateTime(timezone=True), 
         nullable=True
     )
+    name: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
     description: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
     key: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
     secret_key: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)

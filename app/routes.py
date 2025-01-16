@@ -2,11 +2,11 @@ from flask import render_template, flash, redirect, url_for, request, jsonify, s
 from app import app, db, login_manager, api_url
 from app.forms import LoginForm
 from openpyxl import Workbook
-from app.models import User, Contract, Service, Expense
+from app.models import User, Contract, Service, Expense, API
 from werkzeug.security import check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from functools import wraps
-import datetime, os, random, string, zipfile, tempfile, requests
+import datetime, os, random, string, zipfile, tempfile, requests, secrets
 
 
 
@@ -448,6 +448,15 @@ def flash_message():
     message = request.form.get('message')
     if message:
         flash(message, 'danger')
+        return jsonify({'status': 'success'}), 200
+    return jsonify({'status': 'error'}), 400
+
+
+@app.route('/flash-message-success', methods=['POST'])
+def flash_message_success():
+    message = request.form.get('message')
+    if message:
+        flash(message, 'success')
         return jsonify({'status': 'success'}), 200
     return jsonify({'status': 'error'}), 400
 
@@ -983,13 +992,35 @@ def profile():
     username = current_user.username
     first_name = current_user.first_name
     last_name = current_user.last_name
+    fullname = f"{first_name} {last_name}"
     active_application = current_user.active_applications
+
+    limit_key_api = app.config['LIMIT_API_KEY']
+    count_user_api_db = API.query.filter_by(created_by=fullname).all()
+    count_user_api = len(count_user_api_db)
+
+    free_key = int(limit_key_api) - int(count_user_api)
+
+    if count_user_api_db:
+        list_key = []
+        for keys in count_user_api_db:
+            list_key.append({
+                'name': keys.name,
+                'description': keys.description,
+                'key': keys.key,
+                'secret_key': keys.secret_key,
+                'id': keys.id
+            })
+    else:
+        list_key = []
 
     return render_template('profile.html',
         first_name=first_name,
         last_name=last_name,
         username=username,
         profile_name=first_name,
+        free_key=free_key,
+        list_key=list_key,
         active_application=active_application,
         total_requests=total_requests,
         total_services=total_services,
@@ -1191,6 +1222,83 @@ def logout():
     flash('Вы успешно вышли', 'success')
     return redirect(url_for('login'))
 
+
+def generate_api_key():
+    # Генерируем случайный ключ для API (например, длина 32 символа)
+    return secrets.token_hex(16)  # Генерирует 32-символьный шестнадцатеричный ключ
+
+
+def generate_secret_key():
+    # Генерируем случайный секретный ключ (например, длина 64 символа)
+    return secrets.token_hex(32)  # Генерирует 64-символьный шестнадцатеричный секрет
+    
+
+@app.route('/create-api-key', methods=['POST'])
+def create_api_key():
+    try:
+        first_name = current_user.first_name
+        last_name = current_user.last_name
+        fullname = f"{first_name} {last_name}"
+
+        limit_key_api = app.config['LIMIT_API_KEY']
+        count_user_api = API.query.filter_by(created_by=fullname).all()
+        count_user_api = len(count_user_api)
+
+        free_key = int(limit_key_api) - int(count_user_api)
+
+        if free_key <= 0:
+            return jsonify({"error": "Превышен лимит создания API-ключей"}), 400
+        
+        # Извлекаем данные из запроса
+        data = request.get_json()
+
+        # Получаем название и описание API-ключа
+        api_name = data.get('name')
+        api_description = data.get('description')
+
+        # Проверка данных (при необходимости)
+        if not api_name or not api_description:
+            return jsonify({"error": "Необходимо предоставить название и описание"}), 400
+
+        # Проверка длины данных
+        if len(api_name) < 3 or len(api_description) < 10:
+            return jsonify({"error": "Название должно быть от 3 символов, описание от 10 символов"}), 400
+
+        api_key = generate_api_key()
+        secret_key = generate_secret_key()
+
+        new_api = API(
+            created_by=fullname,
+            name=api_name,
+            description=api_description,
+            key=api_key,
+            secret_key=secret_key,
+        )
+
+        db.session.add(new_api)
+        db.session.commit()
+
+        return jsonify({"message": "API-ключ успешно создан", "data": {"key": api_key, "secret_key": secret_key}}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+@app.route('/delete-api-key/<int:id>', methods=['DELETE'])
+def delete_api_key(id):
+    count_user_api = API.query.filter_by(id=id).first()
+    db.session.delete(count_user_api)
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+
+
+
+
+
+
+"""""""""API"""""""""
 
 @app.route(f"{api_url}/get-all-applications", methods=["GET"])
 def get_all_application():

@@ -83,6 +83,44 @@
     transform: translateY(1px);
 }
 
+.create-api {
+    background-color: #f7f7f7;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.create-api h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Кнопка "создать ключ" */
+.create-api-btn {
+    padding: 12px 50px;
+    background-color: #f44336;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    letter-spacing: 1px;
+}
+
+.create-api-btn:hover {
+    background-color: #d32f2f;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
 /* Мобильная версия */
 @media (max-width: 768px) {
     .profile-container {
@@ -129,4 +167,200 @@
         padding: 8px 20px;
         font-size: 14px;
     }
+}
+
+
+/* Общие стили для модального окна */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Стили для контента модального окна */
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative; /* Для позиционирования кнопки закрытия внутри окна */
+}
+
+/* Стили для кнопки закрытия */
+.close {
+    color: #aaa;
+    font-size: 32px;
+    font-weight: bold;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+/* Эффекты при наведении на кнопку закрытия */
+.close:hover,
+.close:focus {
+    color: #333;
+}
+
+/* Стили заголовка */
+h3 {
+    font-family: 'Arial', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Стили для формы */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Стили для меток */
+label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Поля ввода */
+input, textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    width: 100%;
+    min-width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+textarea {
+    min-height: 80px;
+    max-height: 100px;
+}
+
+@media (max-width: 768px) {
+    textarea {
+        min-width: 100%;
+        max-width: 300px;
+    }
+}
+
+input:focus, textarea:focus {
+    border-color: #d32f2f;
+    outline: none;
+}
+
+/* Кнопка отправки */
+button {
+    padding: 12px;
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #d32f2f;
+}
+
+.api-key-list {
+    list-style: none;
+    padding: 0;
+}
+.api-key-item {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+.api-key-item h3, .api-key-item p {
+    margin: 0;
+}
+.copy-btn {
+    padding: 5px 10px;
+    background-color: #00c227;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+.copy-btn:hover {
+    background-color: #00930a;
+}
+
+.delete-btn {
+    background-color: #f44336;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+
+/* Стиль для модального окна */
+.modal-delete {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Тень фона */
+}
+
+.modal-content-delete {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 15% auto;
+    width: 300px;
+    height: 260px;
+    text-align: center;
+}
+
+.modal-actions-delete button {
+    margin-bottom: 20px;
+}
+
+
+/* Стили для кнопки сохранения */
+.cta-button-delete {
+    width: 100%;
+    /* padding: 14px; */
+    background-color: #ff0000;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Стили для кнопки сохранения при hover */
+.cta-button-delete:hover {
+    background-color: #b30000;
 }

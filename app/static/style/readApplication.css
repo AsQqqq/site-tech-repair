@@ -109,7 +109,7 @@ main {
 
 /* Стиль для модального окна */
 .modal {
-    display: none; /* Скрыть по умолчанию */
+    display: none;
     position: fixed;
     z-index: 1;
     left: 0;
@@ -129,5 +129,5 @@ main {
 }
 
 .modal-actions button {
-    margin: 10px;
+    margin-bottom: 20px;
 }

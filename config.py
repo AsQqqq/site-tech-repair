@@ -10,3 +10,4 @@ class Config:
     TOKEN = os.environ.get('TOKEN') or '7792011510:AAHK_rKdfaMHKWQX9o7DW8jVsqxFnGToYQU___'
     GROUP_ID = os.environ.get('GROUP_ID') or '-4614020839'
     API_VERSION = os.environ.get('API_VERSION') or 'v1'
+    LIMIT_API_KEY = os.environ.get('LIMIT_API_KEY') or '1'
