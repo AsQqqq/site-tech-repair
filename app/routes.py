@@ -86,6 +86,11 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Если пользователь уже авторизован, перенаправляем его на страницу admin
+    if current_user.is_authenticated:
+        flash("Вы уже авторизованы. Перейдите на страницу администрирования.", "success")
+        return redirect(url_for('admin'))
+    
     form = LoginForm()
     if form.validate_on_submit():
         username = form.username.data
