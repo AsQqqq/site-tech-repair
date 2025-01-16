@@ -21,6 +21,18 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+    
+    # Добавляем метод serialize
+    def serialize(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'active_applications': self.active_applications,
+            'level': self.level,
+            'is_active': self.is_active
+        }
 
     def get_id(self):
         return str(self.id)
@@ -66,6 +78,28 @@ class Contract(db.Model):
 
     def __repr__(self):
         return f'<Contract {self.id}, {self.address}, Status {self.status}>'
+    
+    # Добавляем метод serialize
+    def serialize(self):
+        return {
+            'id': self.id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'address': self.address,
+            'client': self.client,
+            'description': self.description,
+            'amount': self.amount,
+            'recommendations': self.recommendations,
+            'performer': self.performer,
+            'number': self.number,
+            'acceptance_date': self.acceptance_date.isoformat() if self.acceptance_date else None,
+            'photo_receipt': self.photo_receipt,
+            'photo_document_face': self.photo_document_face,
+            'photo_document_back': self.photo_document_back,
+            'scan_receipt': self.scan_receipt,
+            'scan_document_face': self.scan_document_face,
+            'scan_document_back': self.scan_document_back,
+            'status': self.status.name,  # Если ContractStatus является Enum, используйте .name
+        }
 
 
 class Service(db.Model):
@@ -84,6 +118,18 @@ class Service(db.Model):
 
     def __repr__(self):
         return f'<Service {self.name}, Contract ID {self.contract_id}>'
+    
+    # Добавляем метод serialize
+    def serialize(self):
+        return {
+            'id': self.id,
+            'contract_id': self.contract_id,
+            'name': self.name,
+            'price': self.price,
+            'quantity': self.quantity,
+            'sum': self.sum,
+            'warranty': self.warranty,
+        }
 
 
 class Expense(db.Model):
@@ -103,4 +149,49 @@ class Expense(db.Model):
     
     def __repr__(self):
         return f'<Expense {self.name}, ID {self.id}, Date {self.created_at}>'
+    
+    # Добавляем метод serialize
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'performer': self.performer,
+            'sum': self.sum,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'scan_receipt': self.scan_receipt,
+        }
 
+
+class API(db.Model):
+    __tablename__ = 'api'
+
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    created_by: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
+    created_at: so.Mapped[sa.DateTime] = so.mapped_column(
+        sa.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.datetime.now(moscow_tz)
+    )
+    last_request_at: so.Mapped[sa.DateTime] = so.mapped_column(
+        sa.DateTime(timezone=True), 
+        nullable=True
+    )
+    description: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
+    key: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
+    secret_key: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
+
+    def __repr__(self):
+        return f'<API ID {self.id}, Created By {self.created_by}, Date {self.created_at}>'
+
+    # Добавляем метод serialize
+    def serialize(self):
+        return {
+            'id': self.id,
+            'created_by': self.created_by,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_request_at': self.last_request_at.isoformat() if self.last_request_at else None,
+            'description': self.description,
+            'key': self.key,
+            'secret_key': self.secret_key,
+        }

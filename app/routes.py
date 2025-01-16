@@ -1,5 +1,5 @@
-from flask import render_template, flash, redirect, url_for, request, jsonify, send_file
-from app import app, db, login_manager
+from flask import render_template, flash, redirect, url_for, request, jsonify, send_file, json, Response
+from app import app, db, login_manager, api_url
 from app.forms import LoginForm
 from openpyxl import Workbook
 from app.models import User, Contract, Service, Expense
@@ -1185,10 +1185,18 @@ def download_weekly(week_folder):
         return redirect('weekly-results')
 
 
-
-
 @app.route('/logout')
 def logout():
     logout_user()
     flash('Вы успешно вышли', 'success')
     return redirect(url_for('login'))
+
+
+@app.route(f"{api_url}/get-all-applications", methods=["GET"])
+def get_all_application():
+    applications = Contract.query.all()
+    # Преобразуем данные в JSON вручную с ensure_ascii=False
+    return Response(
+        json.dumps([app.serialize() for app in applications], ensure_ascii=False),
+        mimetype='application/json'
+    )
