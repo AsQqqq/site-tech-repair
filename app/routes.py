@@ -257,8 +257,9 @@ def new_application():
         message = f"""
 Новый заказ - #{last_id}
 -----------
-Описание:
-```{description}```
+```Описание
+{description}
+```
 -----------
 Адрес: 
 {address}
@@ -266,10 +267,13 @@ def new_application():
 Клиент:
 {client_}
 -----------
-Номер для связи:
-```{number}```
+```Связь
+{number}
+```
 -----------
-Создал ```{performer}```
+```Создал
+{performer}
+```
 Посмотреть:
 https://repair-31.ru/{last_id}-application
         """
