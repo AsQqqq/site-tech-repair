@@ -235,6 +235,10 @@ def submit_application():
         phone = request.form['phone']
         name = request.form['name']
 
+        if not expense_description or not address or not phone or not name:
+            flash('Заполните все поля формы', 'danger')
+            return redirect(url_for('application_online'))
+
         new_contract = Contract(
             description=expense_description,
             address=address,
@@ -300,6 +304,7 @@ https://repair-31.ru/{last_id}-application
         else:
             print(f"Ошибка: {response.status_code}, {response.text}")
 
+        flash("Заявка успешно создана", "success")
         return redirect(url_for('application_online'))
 
 
