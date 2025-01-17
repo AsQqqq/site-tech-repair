@@ -72,6 +72,12 @@
     ```bash
     flask run --debug
     ```
+    
+    или:
+
+    ```bash
+    .venv/bin/gunicorn -w 4 -b 0.0.0.0:443 --certfile=/etc/letsencrypt/live/repair-31.ru/fullchain.pem --keyfile=/etc/letsencrypt/live/repair-31.ru/privkey.pem app:app
+    ```
 
     После этого приложение будет доступно по адресу http://127.0.0.1:5000/.
 

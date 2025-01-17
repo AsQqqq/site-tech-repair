@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {
                 message.style.display = 'none';
             }, 500);
-        }, 3000); // 3000ms = 3 секунды
+        }, 15000); // 15000ms = 15 секунды
     });
 });
 

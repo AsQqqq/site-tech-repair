@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Примеры</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/api.css') }}">
+</head>
+<body>
+
+    <header>
+        <h1>Примеры запросов к API</h1>
+        <p>На этой странице представлены примеры запросов к API - repair-31.ru</p>
+    </header>
+
+    <section class="api-request">
+        <h2>GET Запрос</h2>
+        <p>Получение списка всех заявок</p>
+        <br>
+        <p>Эмулированный пример GET запроса:</p>
+        <pre>
+fetch('https://repair-31.ru/get-all-applications', {
+    method: 'GET',
+    headers: {
+        'X-API-KEY': 'abc123',
+        'X-API-SECRET': 'abc321cba123'
+    },
+})
+    .then(response => response.json())
+    .then(data => console.log(data));
+        </pre>
+        <button id="getRequestBtn">Выполнить GET запрос</button>
+        <button class="hideResponseBtn" id="getHideBtn">Скрыть</button>
+        <div id="getResponse"></div>
+    </section>
+
+    <section class="api-request">
+        <h2>POST Запрос</h2>
+        <p>Получение списка всех заявок с фильтром статуса</p>
+        <br>
+        <p>Эмулированный пример POST запроса:</p>
+        <pre>
+fetch('https://repair-31.ru/get-all-filter-applications', {
+    method: 'POST',
+    headers: {
+        'X-API-KEY': 'abc123',
+        'X-API-SECRET': 'abc321cba123'
+    },
+    body: JSON.stringify({
+        status: 'active'
+    })
+})
+    .then(response => response.json())
+    .then(data => console.log(data));
+        </pre>
+        <button id="postRequestBtn">Выполнить POST запрос</button>
+        <button class="hideResponseBtn" id="postHideBtn">Скрыть</button>
+        <div id="postResponse"></div>
+    </section>
+
+    {% include 'footer.html' %}
+
+    <script src="{{ url_for('static', filename='script/api.js') }}"></script>
+</body>
+</html>
