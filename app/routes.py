@@ -899,12 +899,15 @@ def new_expense_admin():
     if missing_fields:
         flash(f"Пожалуйста, заполните следующие поля: {', '.join(missing_fields)}", 'danger')
         return redirect(url_for('new_expense'))
+    
+    expenseDate = datetime.datetime.strptime(expenseDate, "%Y-%m-%dT%H:%M")
 
     new_contract = Expense(
         name=expenseTitle,
         description=expenseDescription,
         performer=f"{current_user.first_name} {current_user.last_name}",
         sum=expenseAmount,
+        created_at=expenseDate,
         scan_receipt=photo_paths.get('photo_receipt')
     )
     db.session.add(new_contract)
