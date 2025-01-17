@@ -82,6 +82,11 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/application-online', methods=['GET'])
+def application_online():
+    return render_template('applicationOnline.html')
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # Если пользователь уже авторизован, перенаправляем его на страницу admin
@@ -219,6 +224,84 @@ def new_expense():
         active_page='new-expense', 
         profile_name=username
     )
+
+
+
+@app.route('/submit-application', methods=['POST'])
+def submit_application():
+    if request.method == 'POST':
+        expense_description = request.form['expenseDescription']
+        address = request.form['address']
+        phone = request.form['phone']
+        name = request.form['name']
+
+        new_contract = Contract(
+            description=expense_description,
+            address=address,
+            client=name,
+            number=phone,
+            performer=name
+        )
+        db.session.add(new_contract)
+        db.session.commit()
+
+        token = app.config['TOKEN']
+        group_id = app.config['GROUP_ID']
+
+        applications_last_id = Contract.query.filter(
+            Contract.status == "active"
+        ).order_by(Contract.id.desc()).first()
+
+        if applications_last_id:
+            last_id = applications_last_id.id
+        else:
+            last_id = None
+
+        message = f"""
+Новый заказ - #{last_id}
+Создал пользователь!
+-----------
+```Описание
+{expense_description}
+```
+-----------
+Адрес: 
+{address}
+-----------
+Клиент:
+{name}
+-----------
+```Связь
+{phone}
+```
+-----------
+```Создал
+{name}
+```
+Посмотреть:
+https://repair-31.ru/{last_id}-application
+        """
+
+        url = f'https://api.telegram.org/bot{token}/sendMessage'
+        
+        # Параметры запроса
+        params = {
+            'chat_id': group_id,
+            'text': message,
+            'parse_mode': 'Markdown'
+        }
+
+        # Отправка POST-запроса
+        response = requests.post(url, params=params)
+        
+        # Проверка ответа
+        if response.status_code == 200:
+            print("Сообщение успешно отправлено!")
+        else:
+            print(f"Ошибка: {response.status_code}, {response.text}")
+
+        return redirect(url_for('application_online'))
+
 
 
 @app.route('/new-application', methods=['GET', 'POST'])
