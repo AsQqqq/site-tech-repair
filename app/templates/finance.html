@@ -13,7 +13,7 @@
 <body>
 
     {% include 'header.html' %}
-
+    
     <!-- Основной контент -->
     <main class="finance-content">
         <section class="hero">
@@ -35,7 +35,7 @@
                 </div>
             </div>
         </section>
-
+        
         <!-- Кнопка только для админа (перемещена вниз) -->
         {% if admin %}
         <div class="admin">
@@ -52,11 +52,11 @@
             <table class="history-table">
                 <thead>
                     <tr>
-                        <th>Айди</th>
-                        <th>Дата</th>
-                        <th>Описание</th>
-                        <th>Сумма</th>
-                        <th>Тип</th>
+                        <th><span onclick="sortTable(0)">Айди <span class="sort-arrow"></span></span></th>
+                        <th><span onclick="sortTable(1)">Дата <span class="sort-arrow"></span></span></th>
+                        <th><span onclick="sortTable(2)">Описание <span class="sort-arrow"></span></span></th>
+                        <th><span onclick="sortTable(3)">Сумма <span class="sort-arrow"></span></span></th>
+                        <th><span onclick="sortTable(4)">Тип <span class="sort-arrow"></span></span></th>
                         <th>Подробнее</th>
                     </tr>
                 </thead>
@@ -78,8 +78,9 @@
             {% endif %}
         </section>
     </main>
-
+    
     {% include 'footer.html' %}
     
 </body>
+<script src="{{ url_for('static', filename='script/finance.js') }}"></script>
 </html>
