@@ -1319,7 +1319,7 @@ def check_api(f):
             return jsonify({"error": "API key or secret key is missing"}), 400
         
         # Получаем запись из базы данных по ключу
-        api = db.session.query(API).filter_by(key=api_key, secret_key=secret_key).first()
+        api = API.query.filter_by(key=api_key, secret_key=secret_key).first()
         
         if not api:
             return jsonify({"error": "Invalid API key or secret key"}), 403
@@ -1328,8 +1328,6 @@ def check_api(f):
         return f(*args, **kwargs)
     
     return decorated_function
-
-
 
 
 @app.route(f"{api_url}/get-all-applications", methods=["GET"])
