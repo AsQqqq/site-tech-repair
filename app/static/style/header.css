@@ -130,12 +130,16 @@
     /* Показать крестик, когда меню открыто */
     .navigation.open .close-btn {
         display: flex;
-        padding-right: 40px;
+        padding-right: 20px;
     }
 
     /* Когда меню открыто */
     .navigation.open {
         display: flex;
+    }
+
+    .header-container.menu-open {
+        padding-left: 0px;
     }
 }
 

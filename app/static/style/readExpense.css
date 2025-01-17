@@ -126,8 +126,9 @@ main {
     margin: 15% auto;
     width: 300px;
     text-align: center;
+    margin-top: 200px;
 }
 
 .modal-actions button {
-    margin: 10px;
+    margin-bottom: 20px;
 }
