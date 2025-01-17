@@ -8,6 +8,7 @@ generate_data.py
 password_account.py
 generate_push.py
 get_id_group.py
+testing_api.py
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

@@ -1295,14 +1295,66 @@ def delete_api_key(id):
 
 
 
+@app.route('/api-page')
+def apiPage():
+    return render_template('apiPage.html')
+
+
+
 
 
 
 """""""""API"""""""""
 
+
+
+
+def check_api(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        api_key = request.headers.get('X-API-KEY')
+        secret_key = request.headers.get('X-API-SECRET')
+        
+        if not api_key or not secret_key:
+            return jsonify({"error": "API key or secret key is missing"}), 400
+        
+        # Получаем запись из базы данных по ключу
+        api = db.session.query(API).filter_by(key=api_key, secret_key=secret_key).first()
+        
+        if not api:
+            return jsonify({"error": "Invalid API key or secret key"}), 403
+        
+        # Если ключи верные, продолжаем выполнение функции
+        return f(*args, **kwargs)
+    
+    return decorated_function
+
+
+
+
 @app.route(f"{api_url}/get-all-applications", methods=["GET"])
+@check_api
 def get_all_application():
     applications = Contract.query.all()
+    # Преобразуем данные в JSON вручную с ensure_ascii=False
+    return Response(
+        json.dumps([app.serialize() for app in applications], ensure_ascii=False),
+        mimetype='application/json'
+    )
+
+
+@app.route(f"{api_url}/get-all-filter-applications", methods=["POST"])
+@check_api
+def get_all_filter_application():
+    request_data = request.get_json()
+
+    status = request_data.get('status')
+    
+    # Проверяем, что status передан
+    if not status:
+        return jsonify({"error": "Status is required"}), 400
+    
+    applications = Contract.query.filter_by(status=status).all()
     # Преобразуем данные в JSON вручную с ensure_ascii=False
     return Response(
         json.dumps([app.serialize() for app in applications], ensure_ascii=False),
