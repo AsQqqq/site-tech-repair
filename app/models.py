@@ -142,8 +142,7 @@ class Expense(db.Model):
     sum: so.Mapped[float] = so.mapped_column(sa.Float, nullable=False)
     created_at: so.Mapped[sa.DateTime] = so.mapped_column(
         sa.DateTime(timezone=True), 
-        nullable=False, 
-        default=lambda: datetime.datetime.now(moscow_tz)
+        nullable=False
     )
     scan_receipt: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255), nullable=True)
     
