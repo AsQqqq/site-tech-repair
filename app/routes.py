@@ -1182,7 +1182,10 @@ def weekly_results():
 def download_weekly(week_folder):
     try:
         weekly_folder = app.config['WEEKLY_FOLDER']
-        week_path = os.path.join(weekly_folder, week_folder).replace("/", "\\")
+        week_path = os.path.join(weekly_folder, week_folder)
+
+        if not os.path.isdir(week_path):
+            week_path = os.path.join(weekly_folder, week_folder).replace("/", "\\")
 
         # Проверяем, существует ли папка
         if not os.path.isdir(week_path):
