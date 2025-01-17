@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/applicationOnline.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Мастер по ремонту</title>
+</head>
+<body>
+    {% include 'clientHeader.html' %}
+
+    <main>
+        <form action="{{ url_for('submit_application') }}" method="POST">
+            <p>Что у вас случилось?</p>
+            <textarea id="expenseDescription" name="expenseDescription" maxlength="1200" required></textarea>
+
+            <p>Куда к вам ехать?</p>
+            <input type="text" name="address" maxlength="70" required>
+
+            <p>Номер телефона для связи</p>
+            <input type="text" name="phone" maxlength="13" required>
+
+            <p>Как к вам обращаться?</p>
+            <input type="text" name="name" maxlength="60" required>
+
+            <button type="submit" class="push-application-button">Отправить заявку</button>
+        </form>
+
+        {% include 'call.html' %}
+    </main>
+
+    {% include 'footer.html' %}
+
+</body>
+</html>

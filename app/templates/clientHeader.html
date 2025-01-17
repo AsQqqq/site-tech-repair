@@ -1,0 +1,40 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='style/header.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style/flash.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style/headerClient.css') }}">
+
+<!-- Шапка сайта -->
+<header class="header-container">
+    <div class="logo">
+        <a href="/">Мастер по ремонту</a>
+    </div>
+    <!-- Иконка для мобильного меню -->
+    <div class="menu-toggle" id="menuToggle">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </div>
+    <!-- Навигация -->
+    <nav class="navigation" id="navMenu">
+        <div class="close-btn" id="closeMenu">
+            <span class="close-bar"></span>
+            <span class="close-bar"></span>
+        </div>
+        <ul>
+            <li><a href="/" active="{% if active_page == 'home' %}true{% endif %}">Главная</a></li>
+            <li><a href="/application-online" active="{% if active_page == 'finance' %}true{% endif %}">Заказать онлайн</a></li>
+            <li><a href="javascript:void(0);" class="contact-btn" onclick="contactUs()">Позвонить</a></li>
+            {% if profile_name %}
+            <li><a href="/profile" active="{% if active_page == 'profile' %}true{% endif %}" class="profile">Профиль ({{ profile_name }})</a></li>
+            {% else %}
+            <li><a href="javascript:void(0);" class="contact-btn" onclick="develop()">Войти</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+
+
+{% include 'flash.html' %}
+
+
+<script src="{{ url_for('static', filename='script/header.js') }}"></script>

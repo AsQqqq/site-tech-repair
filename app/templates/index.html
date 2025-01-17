@@ -9,14 +9,7 @@
     <title>Мастер по ремонту</title>
 </head>
 <body>
-
-    <header>
-        <div class="container">
-            <h1>Мастер по ремонту</h1>
-            <p>Быстро и качественно решим любые проблемы с вашей техникой</p>
-            <button class="contact-btn" onclick="contactUs()">Позвонить</button>
-        </div>
-    </header>
+    {% include 'clientHeader.html' %}
 
     <main>
         <section class="services">
@@ -47,21 +40,10 @@
                 <p>Мы проводим полную диагностику устройств, чтобы вы могли быть уверены в их работоспособности после ремонта.</p>
             </div>
         </section>
+
+        {% include 'call.html' %}
     </main>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Мастер по ремонту. Все права защищены.</p>
-        </div>
-    </footer>
-
-    <div id="modal">
-        <div id="modal-content">
-            <button id="close-btn" onclick="closeModal()">×</button>
-            <p>Наш номер телефона:<br>8 (915) 522-20-06</p>
-        </div>
-    </div>
-
-    <script src="{{ url_for('static', filename='script/index.js') }}"></script>
+    {% include 'footer.html' %}
 </body>
 </html>
