@@ -191,3 +191,24 @@
         border-radius: 8px;
     }
 }
+
+.sort-arrow {
+    font-size: 12px;
+    margin-left: 5px;
+    visibility: hidden; /* Скрыть стрелку по умолчанию */
+}
+
+.sort-arrow.asc::after {
+    content: '↑'; /* Стрелка вверх */
+    font-size: 16px;
+}
+
+.sort-arrow.desc::after {
+    content: '↓'; /* Стрелка вниз */
+    font-size: 16px;
+}
+
+th span {
+    cursor: pointer;
+    user-select: none;
+}
