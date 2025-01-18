@@ -44,6 +44,13 @@ def is_admin():
     return current_user.is_authenticated and current_user.is_active and int(current_user.level) >= 10
 
 
+def is_user():
+    return current_user.is_authenticated and current_user.is_active and int(current_user.level) == 1
+
+def is_master():
+    return current_user.is_authenticated and current_user.is_active and int(current_user.level) >= 5 and int(current_user.level) < 10
+
+
 def get_admin_header():
     if is_admin():
         applications = Contract.query.filter(Contract.status == "checked").all()
@@ -52,6 +59,7 @@ def get_admin_header():
         else:
             checked_len = ""
         menu_items = [
+            {'url': '/finance', 'label': 'Финансы', 'page': 'finance'},
             {'url': '/new-expense', 'label': 'Новый расход', 'page': 'new-expense'},
             {'url': '/weekly-results', 'label': 'Итоги недели', 'page': 'weekly-results'},
             {'url': '/application-admin', 'label': f'Заявки на проверке{checked_len}', 'page': 'application-admin'},
@@ -91,8 +99,15 @@ def application_online():
 def login():
     # Если пользователь уже авторизован, перенаправляем его на страницу admin
     if current_user.is_authenticated:
-        flash("Вы уже авторизованы. Перейдите на страницу администрирования.", "success")
-        return redirect(url_for('admin'))
+        if is_admin():
+            flash("Вы уже авторизованы. Перейдите на страницу администрирования.", "success")
+            return redirect(url_for('admin'))
+        if is_master():
+            flash("Вы уже авторизованы. Перейдите на страницу мастера", "success")
+            return redirect(url_for('admin'))
+        if is_user():
+            flash("Вы уже авторизованы. Перейдите на страницу пользователя", "success")
+            return redirect(url_for('admin'))
     
     form = LoginForm()
     if form.validate_on_submit():
@@ -102,7 +117,6 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            flash('Вход успешен', 'success')
             return redirect(url_for('admin'))
         else:
             flash('Неверное имя пользователя или пароль', 'danger')
@@ -132,7 +146,12 @@ def admin():
 @app.route('/applications')
 @login_required
 def applications():
-    applications = Contract.query.all()
+    if is_admin():
+        applications = Contract.query.all()
+    if is_master():
+        applications = Contract.query.filter(
+            (Contract.status == "active") | (Contract.status == "worked")
+        ).all()
 
     if not applications:
         applications = []
@@ -154,6 +173,7 @@ def applications():
 
 @app.route('/finance')
 @login_required
+@is_admin_wraps
 def finance():
     # Получение доходов
     contracts = Contract.query.filter(Contract.status == "closed").all()  # Только активные контракты
@@ -646,6 +666,10 @@ def read_application(id):
     else:
         worked_application = False
 
+    cansel_button = ''
+    if is_admin():
+        cansel_button = '<button type="submit" class="cta-button" id="cansel">Отменить заявку</button>'
+
 
     username = current_user.first_name
     active_application = current_user.active_applications
@@ -654,6 +678,7 @@ def read_application(id):
         active=status,
         worked=worked_application,
         checked=checked,
+        cansel_button=cansel_button,
         active_application=active_application,
         closed=True if application.status.value == "closed" else False,
         menu_items=get_admin_header(),
@@ -703,6 +728,7 @@ def end_application_id(id):
 
 @app.route('/delete_application/<int:id>', methods=['POST'])
 @login_required
+@is_admin_wraps
 def delete_application(id):
     application = Contract.query.filter_by(id=id).first()
 
@@ -1092,6 +1118,16 @@ def profile():
 
     free_key = int(limit_key_api) - int(count_user_api)
 
+    create_api = ''
+    if is_admin():
+        create_api = f"""
+<div class="create-api">
+    <h2>Создать API-ключи</h2>
+    <p>Доступно ключей - {free_key}</p>
+    <button class="create-api-btn">Создать</button>
+</div>
+"""
+
     if count_user_api_db:
         list_key = []
         for keys in count_user_api_db:
@@ -1109,8 +1145,8 @@ def profile():
         first_name=first_name,
         last_name=last_name,
         username=username,
+        create_api=create_api,
         profile_name=first_name,
-        free_key=free_key,
         list_key=list_key,
         active_application=active_application,
         total_requests=total_requests,
@@ -1325,9 +1361,10 @@ def generate_api_key():
 def generate_secret_key():
     # Генерируем случайный секретный ключ (например, длина 64 символа)
     return secrets.token_hex(32)  # Генерирует 64-символьный шестнадцатеричный секрет
-    
+
 
 @app.route('/create-api-key', methods=['POST'])
+@is_admin_wraps
 def create_api_key():
     try:
         first_name = current_user.first_name
@@ -1380,6 +1417,7 @@ def create_api_key():
 
 
 @app.route('/delete-api-key/<int:id>', methods=['DELETE'])
+@is_admin_wraps
 def delete_api_key(id):
     count_user_api = API.query.filter_by(id=id).first()
     db.session.delete(count_user_api)

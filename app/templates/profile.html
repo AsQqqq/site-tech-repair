@@ -58,11 +58,7 @@
                 </ul>
             </div>
 
-            <div class="create-api">
-                <h2>Создать API-ключи</h2>
-                <p>Доступно ключей - {{ free_key }}</p>
-                <button class="create-api-btn">Создать</button>
-            </div>
+            {{ create_api|safe }}            
 
             <div class="api-key-list">
                 {% for item in list_key %}
